@@ -26,6 +26,7 @@ namespace couplerWriter
                 service = new AppsService("warwickshire.ac.uk", "system@warwickshire.ac.uk", "b4ckb34t");
                 serviceTEST = new AppsService("test.warwickshire.ac.uk", "system@warwickshire.ac.uk", "b4ckb34t");
 
+                //service = new AppsService("warwickshire.ac.uk", "gadmin@warwickshire.ac.uk", "adcv325jemin");
                 //serviceTEST = new AppsService("test.warwickshire.ac.uk", "gadmin@warwickshire.ac.uk", "adcv325jemin");
             }
             catch (AppsException uex)
