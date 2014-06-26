@@ -1,0 +1,81 @@
+using System;
+using System.Data;
+using System.Collections.Generic;
+using System.Text;
+
+namespace couplerWriter
+{
+    class defaultAccountRW
+    {
+        String mCSSHDDB, mCSEHDDB, mCSQLRDB;
+        public defaultAccountRW(String csSHDDB, String csEHDDB, String csQLRDB)
+        {
+            mCSEHDDB = csEHDDB;
+            mCSQLRDB = csQLRDB;
+            mCSSHDDB = csSHDDB;
+        }
+
+        private void newStaffDefaultAccounts(staffSpec aStaffSpec)
+        {
+            String HDInsert =
+                "st_eventSHDNewApproved " +
+                "'" + aStaffSpec.EmailAddress + "', " +
+                "'" + aStaffSpec.Site + "', " +
+                "'" + aStaffSpec.Forename.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.Surname.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.QLId + "', " + 
+                "'" + aStaffSpec.Department.Replace("'", "''") + "', " + 
+                "'" + aStaffSpec.Tel + "', '" + aStaffSpec.EmpType + "'";
+            DataView wDV;
+            //EHDDB
+            wDV = staffUtility.readDataView(staffUtility.XrayUtilDB, HDInsert);
+            //SDDDB
+            wDV = staffUtility.readDataView(staffUtility.NovUtilDB, HDInsert);
+            //QLR
+            wDV = staffUtility.readDataView(staffUtility.couplerDB,
+                "st_eventQLRNewApproved " +
+                "'" + aStaffSpec.NDSName + "', '" + aStaffSpec.Site + "', '" + aStaffSpec.QLId + "', '" + aStaffSpec.DeptCode + "', '" + aStaffSpec.EmpType + "'"
+            );
+        }
+
+        public void create(staffSpecSL aStaffSpecSL, DateTime runDateTime)
+        {
+            if (aStaffSpecSL.Count > 0)
+                foreach (staffSpec aSS in aStaffSpecSL.Values) 
+                    newStaffDefaultAccounts(aSS);
+        }
+
+        public String[] createSucceeded(staffSpecSL aStaffSpecSL)
+        {
+            List<String> successes = new List<string>();
+            DataView wDV;
+            foreach (staffSpec wSS in aStaffSpecSL.Values)
+            {
+                wDV=staffUtility.readDataView(mCSEHDDB,
+                    "SELECT COUNT(*) AS matches FROM people " + 
+                    "WHERE user_email='" + wSS.NDSName + "@warkscol.ac.uk'"
+                );
+                if(wDV!=null) if(wDV.Count>0) if((int)wDV[0]["matches"]>0)
+                {
+                    wDV = staffUtility.readDataView(mCSSHDDB,
+                        "SELECT COUNT(*) AS matches FROM people " +
+                        "WHERE user_email='" + wSS.NDSName + "@warkscol.ac.uk'"
+                    );
+                    if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                    {
+                        wDV = staffUtility.readDataView(staffUtility.couplerDB,
+                            "SELECT COUNT(*) AS matches FROM wcPortal..wcQLRreportUsers " +
+                            "WHERE NDSName='" + wSS.NDSName + "'"
+                        );
+                        if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0) 
+                            successes.Add(wSS.queueItem.ToString());
+                    }
+
+                }
+            }
+            return successes.ToArray();
+        }
+
+
+    }
+}

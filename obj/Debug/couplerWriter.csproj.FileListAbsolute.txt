@@ -1,0 +1,10 @@
+D:\qlrepdev\couplerWriter\obj\Debug\couplerWriter.exe
+D:\qlrepdev\couplerWriter\obj\Debug\couplerWriter.pdb
+D:\qlrepdev\couplerWriter\bin\Debug\couplerWriter.exe
+D:\qlrepdev\couplerWriter\bin\Debug\couplerWriter.pdb
+D:\qlrepdev\couplerWriter\obj\Debug\ResolveAssemblyReference.cache
+D:\qlrepdev\couplerWriter\bin\Debug\couplerWriter.exe.manifest
+D:\qlrepdev\couplerWriter\bin\Debug\couplerWriter.application
+D:\qlrepdev\couplerWriter\obj\Debug\couplerWriter.TrustInfo.xml
+D:\qlrepdev\couplerWriter\obj\Debug\couplerWriter.exe.manifest
+D:\qlrepdev\couplerWriter\obj\Debug\couplerWriter.application

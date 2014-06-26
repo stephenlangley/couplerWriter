@@ -1,0 +1,128 @@
+'==============================================================================
+' Vb Script to read the students (NewLogins and MovedLogins) 
+' who have been put into the RoundTrip table by JrbScanner.vbs
+'
+' This script will execute Jblookup with each student found in the RoundTrip table 
+' if jblookup finds student on NDS then it puts the student in the OnSysFile
+' The OnSysfile is read and calls a StoredProcedure to remove each student found 
+' from the roundtrip table
+' This means that any students left in the RoundTrip table are not on the Novell system.
+'
+' For each Student in the RoundTrip Table 
+'   When the attempts count gets to 10 then send an e-mail to NetworkServices.
+'==============================================================================
+option explicit
+dim MySet
+dim xMySet
+dim FSO
+dim TF
+dim TFbak
+
+dim Fsys         ' file system object
+dim sFolderName  ' Source folder name
+dim dFolderName  ' destination folder name
+dim ThisFolder   ' source folder object
+Dim AllFiles     ' source files object
+dim dFile        ' destination file
+dim ans
+dim ans2
+dim wshell
+dim mboxTitle
+dim debug
+dim quote
+dim myExe
+dim res
+dim OnSysFile
+dim StuID
+
+dim JRBmsg
+dim JRBEmailFrom
+dim JRBEmailTo
+dim JRBEmailCC
+dim JRBSubject
+dim sAddress
+dim students
+dim NDSname
+
+Const wcIdentityDSN = "uid=qlmaster;pwd=qlmaster1;driver=SQL Server;Server=november;database=wcIdentities;timeout=1"
+
+set FSO=CreateObject("Scripting.FileSystemObject")
+
+function UpdateMySet(strSQL)
+  Set xMySet = CreateObject("ADODB.Recordset")			
+  xMySet.Open strSQL, wcIdentityDSN
+  UpdateMySet=True
+end function
+
+Function OpenMySet(strSQL)
+On Error Resume Next
+OpenMySet = false
+  Set MySet = CreateObject("ADODB.Recordset")
+  MySet.activeconnection=wcIdentityDSN
+    if Err.Number <> 0  then 
+        Err.Clear
+        Exit Function
+    end if
+
+  MySet.source=strSQL
+  MySet.Open()
+    if Err.Number <> 0  then 
+        Err.Clear
+        Exit Function
+    end if
+  If MySet.EOF And MySet.BOF Then
+    OpenMySet = False
+  Else
+    OpenMySet = True
+  End If
+End Function
+
+set wShell = CreateObject("Wscript.Shell")
+quote = """"
+  
+' ==== SET DEBUG VALUE =============================================
+debug=false
+' ==================================================================
+
+if debug then ' ALLOWS TESTING 
+
+else
+' ======= DO THE MAIN PROGRAM  if DEBUG set to FALSE
+
+  myExe = "c:\staff\logins\jblookup.exe "
+  ' Create OnSysFile
+  OnSysFile="c:\Staff\logins\staff\todo\OnSysFile.txt"
+  set TF=FSO.CreateTextFile(OnSysFile)
+  set TF=nothing
+  'msgbox "Start MySet"
+  ' For each staff in RoundTrip CALL Jblookup.exe and put results in the OnSysFile
+  if OpenMyset("st_eventwcStaffRoundTrip") then
+    while not MySet.EOF
+         ' msgbox "User " & MySet.Fields("Staff_id")
+         ' Use JBLookup to see if student is on Novell system - append to a OnSysfile
+         ' Jblookup StudentID /j /y=s /l=append,OnSysFile
+          res = wShell.Run(quote & myExe & quote & " " & quote & MySet.Fields("NDSname") & quote  & " /j /y=s /l=append," & quote & OnSysFile & quote ,0,-1)
+
+          MySet.movenext
+    wend
+  else
+  '    response.write "NoRecords returned 
+  '    msgbox "NoRecords returned "
+
+  end if
+  ' msgbox "End Myset"
+  ' Read the OnSysFile and for each student found remove student from the RoundTrip table
+  set TF=FSO.OpenTextFile(OnSysFile,1)
+  while not TF.AtEndOfStream
+    TF.SkipLine ' because The JBlookup adds blank lines
+    NDSname  = trim(mid(trim(TF.ReadLine),12))
+    if len(trim(NDSname)) > 1 then 
+       ' msgbox "Reading file for student " & StuID & " len =  " & len(StuID)
+       if UpdateMySet("st_eventwcDelStaffRoundTrip '" & NDSname &  "'") then
+       end if
+    end if
+
+  wend
+  set TF=nothing
+
+end if 'debug

@@ -1,0 +1,15 @@
+D:\qlreport\IDM1\couplerWriter\obj\Debug\couplerWriter.exe
+D:\qlreport\IDM1\couplerWriter\obj\Debug\couplerWriter.pdb
+D:\qlreport\IDM1\couplerWriter\bin\Debug\couplerWriter.exe
+D:\qlreport\IDM1\couplerWriter\bin\Debug\couplerWriter.pdb
+D:\qlreport\IDM1\couplerWriter\obj\Debug\ResolveAssemblyReference.cache
+D:\qlreport\couplerWriter\obj\Debug\couplerWriter.exe
+D:\qlreport\couplerWriter\obj\Debug\couplerWriter.pdb
+D:\qlreport\couplerWriter\bin\Debug\couplerWriter.exe
+D:\qlreport\couplerWriter\bin\Debug\couplerWriter.pdb
+D:\qlreport\couplerWriter\obj\Debug\ResolveAssemblyReference.cache
+D:\qlrepdev\couplerWriter\obj\Debug\couplerWriter.exe
+D:\qlrepdev\couplerWriter\obj\Debug\couplerWriter.pdb
+D:\qlrepdev\couplerWriter\bin\Debug\couplerWriter.exe
+D:\qlrepdev\couplerWriter\bin\Debug\couplerWriter.pdb
+D:\qlrepdev\couplerWriter\obj\Debug\ResolveAssemblyReference.cache

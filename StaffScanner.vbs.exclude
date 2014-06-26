@@ -1,0 +1,548 @@
+option explicit
+Const wcIdentityDSN = "uid=qlmaster;pwd=qlmaster1;driver=SQL Server;Server=november;database=wcIdentities;timeout=1"
+Const wcXrayUtilsDSN = "uid=ehduser;pwd=ehduser1;driver=SQL Server;Server=xray;database=Utils;timeout=1"
+Const wcNovemberUtilsDSN = "uid=shduser;pwd=shduser1;driver=SQL Server;Server=november;database=Utility;timeout=1"
+dim MySet
+dim MySet2
+dim xMySet
+dim FSO
+dim TF
+dim TFbak
+dim TFdis
+dim TFdisbak
+dim TFExp
+dim TFExpbak
+dim TFcha
+dim xTF
+dim xTFbak
+dim xnow
+dim dtnow
+dim NDSname
+dim site
+dim surname
+dim forename
+dim QLid
+dim quote
+dim res
+dim Context
+dim Homevol
+dim JobTitle
+dim EmailAddress
+dim Tel
+dim EmpType
+dim Department
+dim statusNDS
+dim statusSHD
+dim statusQLR
+dim statusProcess
+dim Loc_id
+dim Template
+dim PostOffice
+dim Description
+dim DeptCode
+dim TOP
+dim SetFile
+dim DisFile
+dim ExpFile
+dim ChaFile
+dim GWise
+dim ExpireDate
+dim StartDate
+dim TempExpireDate
+dim HomeVolRestrict
+dim SharedVolRestrict
+dim Vol1VolRestrict
+
+
+set FSO=CreateObject("Scripting.FileSystemObject")
+
+function UpdateMySet(strSQL, ServerDSN)
+  UpdateMySet=False
+ ' msgbox strSQL
+  Set xMySet = CreateObject("ADODB.Recordset")			
+  xMySet.Open strSQL, ServerDSN
+  if xMySet.fields(0) = 1 then
+  	UpdateMySet=True
+  end if
+end function
+
+Function OpenMySet(strSQL, ServerDSN)
+On Error Resume Next
+OpenMySet = false
+  Set MySet = CreateObject("ADODB.Recordset")
+  MySet.activeconnection=ServerDSN
+    if Err.Number <> 0  then 
+        Err.Clear
+        Exit Function
+    end if
+
+  MySet.source=strSQL
+  MySet.Open()
+    if Err.Number <> 0  then 
+        Err.Clear
+        Exit Function
+    end if
+  If MySet.EOF And MySet.BOF Then
+    OpenMySet = False
+  Else
+    OpenMySet = True
+  End If
+End Function
+
+Function NDSDisable(DSN,NDSname,Site,Forename,Surname,Context,Homevol,JobTitle,Department,Tel,EmailAddress,QLid,Template,PostOffice,Description)
+' +++++++++++++++++++++++++++++++++++
+' + write a disable record to a text file +
+' +++++++++++++++++++++++++++++++++++
+dim FullName
+dim password
+dim fstatusNDS
+dim i, x, y
+dim pos, sPword
+sPword = ""
+for i = 1 to 8
+  randomize()
+  x = rnd()
+  y = (10000000 * x) mod 128
+  if y < 65 then y = y + 65
+  sPword = sPword & chr(y)
+next 
+  ' msgbox sPword
+   FullName = Forename & " " & Surname
+   Password = sPword
+   NDSDisable = "0" ' FALSE
+   fstatusNDS = "NDS"
+
+   ' Do some processing here
+
+   quote = """"
+         TFdis.writeline "!Name context = " & "users" & Context  
+         TFdis.writeline quote & NDSname & quote & "," & quote & ucase(surname) & quote & _
+                      "," &  quote & ucase(Forename) & quote & "," & quote & Password & quote & _ 
+                      "," &  quote & FullName & quote & _ 
+                      "," &  quote & Description & quote 
+   'if UpdateMyset("st_eventNewRoundTrip '" & NDSname & "', '" & fstatusNDS & "', '" & QLid & "'" , DSN) then
+     ' msgbox "RoundTrip"        
+   'end if 
+
+   if UpdateMySet("st_eventdisableNDS '" & QLid & "'", DSN) then
+     '    msgbox " set NDSdisabled = 1 - it has now been sent to jrbImport to  be processed"
+   end if 
+
+   'if updateMySet("st_eventIsProcessed '" & NDSname & "'", DSN) then
+         ' if  statusNDS = 1, statusSHD = 1 and statusQLR = 1 then set statusPROCESS = 0
+   'end if 
+
+   NDSDisable = "1" ' TRUE
+end function
+
+Function NDSExpire(DSN,NDSname,Site,Forename,Surname,Context,Homevol,ExpireDate,Department,Tel,EmailAddress,QLid,Template,PostOffice,Description)
+' +++++++++++++++++++++++++++++++++++
+' + write a disable record to a text file +
+' +++++++++++++++++++++++++++++++++++
+dim FullName
+dim password
+dim fstatusNDS
+dim E
+
+   E =  right("00" & DatePart("m",ExpireDate),2) & "/" &  right("00" & DatePart("d",ExpireDate),2) & "/" & DatePart("yyyy",ExpireDate)  & " 23:59:00"
+
+   FullName = Forename & " " & Surname
+   NDSExpire = "0" ' FALSE
+   fstatusNDS = "NDS"
+
+   ' Do some processing here
+
+   quote = """"
+         TFExp.writeline "!Name context = " & "users" & Context  
+         TFExp.writeline quote & NDSname & quote & "," & quote & ucase(surname) & quote & _
+                      "," &  quote & ucase(Forename) & quote & "," & quote & E & quote & _ 
+                      "," &  quote & FullName & quote & _ 
+                      "," &  quote & Description & quote 
+
+   if UpdateMySet("st_eventExpireNDS '" & QLid & "'", DSN) then
+     '    msgbox " set NDSdisabled = 1 - it has now been sent to jrbImport to  be processed"
+   end if 
+
+   NDSExpire = "1" ' TRUE
+end function
+
+
+Function NDSNewApproved(DSN,NDSname,Site,Forename,Surname,Context,Homevol,JobTitle,Department,Tel,EmailAddress,QLid,Template,PostOffice,Description,EmpType,GWise,HomeVolRestrict,SharedVolRestrict,Vol1VolRestrict)
+' +++++++++++++++++++++++++++++++++++
+' + write new record to a text file +
+' +++++++++++++++++++++++++++++++++++
+dim FullName
+dim password
+dim fstatusNDS
+dim ExpireDate
+dim E
+dim StaffID
+    StaffID = right("00000000" & trim(QLid),8)
+   'msgbox "Start NDS approved"
+   FullName = Forename & " " & Surname
+   Password = "seaside"
+   ExpireDate = "none"
+   if isnull(EmpType) then EmpType = "NEWSTAFF"
+   if EmpType = "TEMP" then
+   	ExpireDate = dateadd("D",42,date())
+        E =  right("00" & DatePart("m",ExpireDate),2) & "/" &  right("00" & DatePart("d",ExpireDate),2) & "/" & DatePart("yyyy",ExpireDate)  
+        ExpireDate = E 
+   end if
+   NDSNewApproved = "0" ' FALSE
+   fstatusNDS = "NDS"
+'	 TF.writeline "!Template=" & Template
+
+   ' Do some processing here
+   quote = """"
+         TF.writeline "!Name context = " & "users" & Context  
+         TF.writeline "!Home directory volume=" & Homevol
+         TF.writeline "!Home directory path=users" 
+    ' msgbox GWise
+    if  GWise  then
+	 TF.writeline "!Groupwise add users=y"
+	 TF.writeline "!Groupwise domain object=.warkscollege.groupwise.wc"
+	 TF.writeline "!Groupwise post office=" & PostOffice
+     end if
+         TF.writeline quote & NDSname & quote & "," & quote & ucase(surname) & quote & _
+                      "," &  quote & Forename & quote & "," & quote & Password & quote & _ 
+                      "," &  quote & ucase(FullName) & quote & "," & quote & ucase(Department) & quote & _ 
+                      "," &  quote & ucase(Site) & quote & "," & quote & ucase(JobTitle) & quote & _ 
+                      "," &  quote & Tel & quote & "," & quote & ucase(EmailAddress) & quote & _
+                      "," &  quote & Description & quote & _
+                      "," &  quote & StaffID & quote & _
+                      "," &  quote & ExpireDate & quote & _
+                      "," &  quote & HomeVolRestrict & quote & _
+                      "," &  quote & SharedVolRestrict & quote & _
+                      "," &  quote & Vol1VolRestrict & quote 
+
+
+   if UpdateMyset("st_eventNewRoundTrip '" & NDSname & "', '" & fstatusNDS & "', '" & QLid & "'" , DSN) then
+     ' msgbox "RoundTrip"        
+   end if 
+
+   if UpdateMySet("st_eventSetNDS '" & QLid & "'", DSN) then
+         ' set statusNDS = 1 - it has now been sent to jrbImport to  be processed
+   end if 
+
+   if updateMySet("st_eventIsProcessed '" & NDSname & "'", DSN) then
+         ' if  statusNDS = 1, statusSHD = 1 and statusQLR = 1 then set statusPROCESS = 0
+   end if 
+
+   NDSNewApproved = "1" ' TRUE
+end function
+
+
+Function NDSChanged(DSN,NDSname,Site,Forename,Surname,Context,Homevol,JobTitle,Department,Tel,EmailAddress,QLid,Template,PostOffice,Description,EmpType,GWise)
+' +++++++++++++++++++++++++++++++++++
+' + write a changed record to a text file +
+' +++++++++++++++++++++++++++++++++++
+dim FullName
+dim password
+dim fstatusNDS
+dim ExpireDate
+dim E
+dim StaffID
+    StaffID = right("00000000" & trim(QLid),8)
+   'msgbox "Start NDS approved"
+   FullName = Forename & " " & Surname
+   ExpireDate = "none"
+   if isnull(EmpType) then EmpType = "NEWSTAFF"
+   NDSChanged = "0" ' FALSE
+   fstatusNDS = "NDS"
+
+   ' Do some processing here
+   quote = """"
+         TFcha.writeline "!Name context = " & "users" & Context  
+         TFcha.writeline quote & NDSname & quote  & _
+                      "," &  quote & ucase(FullName) & quote & "," & quote & ucase(Department) & quote & _ 
+                      "," &  quote & ucase(Site) & quote & "," & quote & ucase(JobTitle) & quote & _ 
+                      "," &  quote & StaffID & quote & _
+                      "," &  quote & Description & quote
+
+   if updateMySet("st_eventIsProcessedTemp '" & NDSname & "'", DSN) then
+         ' if  statusNDS = 1, statusSHD = 1 and statusQLR = 1 then set statusPROCESS = 0
+   end if 
+
+   NDSChanged = "1" ' TRUE
+end function
+
+
+
+Function QLRNewApproved(DSN,NDSname,Site,QLid,DeptCode,EmpType)
+' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+' + Update qlsdat..wcQLRreportUsers table with the new record +
+' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   NDSname = NDSname 
+   'msgbox "st_eventQLRNewApproved '" & NDSname & "', '" & Site & "', '" & Qlid &  "', '" & DeptCode  & "', '" & EmpType & "'"
+   if UpdateMyset("st_eventQLRNewApproved '" & NDSname & "', '" & Site & "', '" & Qlid &  "', '" & DeptCode  & "', '" & EmpType & "'" , DSN) then
+   end if
+   if updateMySet("st_eventIsProcessed '" & NDSname & "'", DSN) then
+         ' if  statusNDS = 1, statusSHD = 1 and statusQLR = 1 then set statusPROCESS = 0
+   end if 
+
+end function
+
+Function SHDNewApproved(NovDSN,DSN,NDSname,Site,Forename,Surname,QLid,JobTitle,Department,Tel,EmailAddress, EmpType)
+' ++++++++++++++++++++++++++++++++++++++++++++++++++
+' + Update shddb..people table with the new record +
+' ++++++++++++++++++++++++++++++++++++++++++++++++++
+   NDSname = NDSname & "@warkscol.ac.uk"
+   if not isnull(Surname) then Surname = replace(Surname,"'"," ")
+   if not isnull(forename) then Forename = replace(Forename,"'"," ")
+   
+   'msgbox "st_eventSHDNewApproved '" & NDSname & "', '" & Site &  "', '" & Department & "', '" & Tel & "', '" & EmpType & "'"
+   if UpdateMyset("st_eventSHDNewApproved '" & EmailAddress & "', '" & Site  & "', '" & Forename   & "', '" & _
+                                               Surname  & "', '" & Qlid & "', '" & Department & "', '" & Tel & "', '" & EmpType &  "'" , DSN) then
+       ' Update the SHD status field as the update was a success
+      if UpdateMySet("st_eventSetSHD '" & QLid & "'", NovDSN) then
+         ' set statusSHD = 1 - it has now been sent to jrbImport to  be processed
+      end if 
+   else
+    '   msgbox "Update Failed for st_eventSHDNewApproved '" & NDSname & "', '" & Site &  "'"   
+   end if
+   if updateMySet("st_eventIsProcessed '" & NDSname & "'", NovDSN) then
+         ' if  statusNDS = 1, statusSHD = 1 and statusQLR = 1 then set statusPROCESS = 0
+   end if
+   ' DO Estates HelpDesk 
+   if UpdateMyset("st_eventSHDNewApproved '" & EmailAddress & "', '" & Site  & "', '" & Forename   & "', '" & _
+                                               Surname  & "', '" & Qlid & "', '" & Department & "', '" & Tel & "', '" & EmpType &  "'" , wcXrayUtilsDSN) then
+   end if
+
+
+end function
+
+Function ForceStatusCheck(DSN,NDSname)
+' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+' + CheckStatsu IsProcessed +
+' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+       ' msgbox " Pre check - if  statusNDS = 1, statusSHD = 1 and statusQLR = 1 then set statusPROCESS = 0"
+
+   if updateMySet("st_eventIsProcessed '" & NDSname & "'", DSN) then
+'        msgbox " if  statusNDS = 1, statusSHD = 1 and statusQLR = 1 then set statusPROCESS = 0"
+         ' if  statusNDS = 1, statusSHD = 1 and statusQLR = 1 then set statusPROCESS = 0
+   end if 
+
+end function
+
+
+' ====== START PROCESSING =============================================================================
+
+xNow = now()
+dtNow = DatePart("yyyy",xNow) & right("00" & DatePart("m",xNow),2) & right("00" & DatePart("d",xNow),2) & right("00" & DatePart("h",xNow),2) & right("00" & DatePart("n",xNow),2)
+
+' === Round trip processing ============
+
+if OpenMyset("st_eventScanStaffRoundTrip",wcIdentityDSN) then
+        SetFile = "0"
+
+    while not MySet.EOF
+
+        if (trim(MySet.fields("TypeOfProcess")) = "CR" or trim(MySet.fields("TypeOfProcess")) = "ER") and SetFile = "0" then                 
+'        'if not MySet.fields("statusNDS") and (trim(MySet.fields("TypeOfProcess")) = "CR" or trim(MySet.fields("TypeOfProcess")) = "ER") and SetFile = "0" then                 
+         ' msgbox "open rt file"
+          set TF=FSO.CreateTextFile("c:\Staff\logins\staff\todo\RTStaffLogins" & dtNow & ".txt")
+          'set TFbak=FSO.CreateTextFile("c:\staff\logins\staff\bak\RTStaffLogins" & dtNow & ".txt")
+          SetFile = "1"
+         end if
+        ' SET Description here equal to date 
+        Description = DatePart("yyyy",xNow) & "/" & right("00" & DatePart("m",xNow),2) & "/" & right("00" & DatePart("d",xNow),2) 
+
+        statusNDS = MySet.fields("statusNDS")
+        statusSHD = MySet.fields("statusSHD")
+        statusQLR = MySet.fields("statusQLR")
+        statusProcess = MySet.fields("statusProcess")
+        QLid = MySet.fields("StaffID")
+        NDSname =  trim(MySet.fields("NDSname"))
+        Site = "staff^member"
+        Department = trim(MySet.fields("department")) & " "
+        Forename = trim(MySet.fields("forename"))
+        Surname = trim(MySet.fields("surname"))
+        Context = trim(myset.fields("context"))
+        Homevol = trim(myset.fields("homevol"))
+        JobTitle = trim(myset.fields("job_title")) & " "
+        EmpType = trim(myset.fields("emp_type"))
+        EmailAddress = NDSname & "@warkscol.ac.uk"
+        Tel = trim(myset.fields("Telephone"))
+        Loc_id = trim(myset.fields("loc_id")) 
+        Template=trim(myset.fields("Template"))
+        PostOffice=trim(myset.fields("PostOffice")) 
+        DeptCode = trim(MySet.fields("dept_code"))
+        TOP = trim(MySet.fields("TypeOfProcess"))
+        GWise = trim(MySet.fields("statusGroupwise"))
+        HomeVolRestrict = trim(myset.fields("HomeVolRestrict"))
+        SharedVolRestrict = trim(myset.fields("SharedVolRestrict"))
+        Vol1VolRestrict = trim(myset.fields("Vol1VolRestrict"))
+
+
+ 
+        ' ==== NDS Processing ===========================
+        if  (TOP = "CR" or TOP = "ER") then       
+               'msgbox QLid & " ," & NDSname & " ," & Site & " ," & Department & " ," & Forename & " ," & _
+               'Surname & " ," & Context & " ," & Homevol & " ," & JobTitle & " ," & EmpType & " ," & _
+               'EmailAddress & " ," & Tel
+ 
+        Description = "Set Created on " & Description
+         ' res = TempNDSNewApproved(wcIdentityDSN,NDSname,Site,Forename,Surname,Context,Homevol,JobTitle,Department,Tel,EmailAddress, QLid,Template,PostOffice,Description) 
+          res = NDSNewApproved(wcIdentityDSN,NDSname,Site,Forename,Surname,Context,Homevol,JobTitle,Department,Tel,EmailAddress, QLid,Template,PostOffice,Description,EmpType,GWise,HomeVolRestrict,SharedVolRestrict,Vol1VolRestrict) 
+           
+        end if
+        ' ===============================================
+	MySet.MoveNext
+    wend
+    set TF = nothing
+    set TFbak = nothing
+    MySet.close
+
+end if
+
+
+
+' =======  New Staffprocessing ================
+
+if OpenMyset("st_eventGetNewApproval",wcIdentityDSN) then
+        MySet.movefirst         
+        SetFile = "0"
+        DisFile = "0"  
+        ExpFile = "0"  
+        ChaFile = "0"
+      
+    while not MySet.EOF
+        StartDate =  trim(MySet.fields("start_date"))
+        if isnull(StartDate) then StartDate = "21/12/2012" 
+
+        ' msgbox trim(MySet.fields("NDSname")) & " NDS = " & MySet.fields("statusNDS") & " TypeOfProcess = " & trim(MySet.fields("TypeOfProcess")) &  " SetFile = " & SetFile & "  datediff = " & datediff("d",cdate(StartDate),cdate(now()))
+        if not MySet.fields("statusNDS") and (trim(MySet.fields("TypeOfProcess")) = "CR" or trim(MySet.fields("TypeOfProcess")) = "ER") and SetFile = "0" and datediff("d",cdate(StartDate),cdate(now())) >= 0 then                 
+          'msgbox trim(MySet.fields("NDSname")) & " NDS = " & MySet.fields("statusNDS") & " TypeOfProcess = " & trim(MySet.fields("TypeOfProcess")) &  " SetFile = " & SetFile & "  datediff = " & datediff("d",cdate(StartDate),cdate(now()))
+
+            set TF=FSO.CreateTextFile("c:\Staff\logins\staff\todo\NewStaffLogins" & dtNow & ".txt")
+            'set TFbak=FSO.CreateTextFile("c:\staff\logins\staff\bak\NewStaffLogins" & dtNow & ".txt")
+            SetFile = "1"
+        end if
+        if trim(MySet.fields("TypeOfProcess")) = "LV" and DisFile = "0" then                 
+           ' msgbox "disabled file opened"
+            set TFdis=FSO.CreateTextFile("c:\Staff\logins\staff\todo\DisableStaffLogins" & dtNow & ".txt")
+            'set TFdisbak=FSO.CreateTextFile("c:\staff\logins\staff\bak\DisableStaffLogins" & dtNow & ".txt")
+            DisFile = "1"
+        end if
+
+        if (trim(MySet.fields("TypeOfProcess")) = "AV" or trim(MySet.fields("TypeOfProcess")) = "XT") and ExpFile = "0" then                 
+           ' msgbox "disabled file opened"
+            set TFExp=FSO.CreateTextFile("c:\Staff\logins\staff\todo\ExpireStaffLogins" & dtNow & ".txt")
+            'set TFExpbak=FSO.CreateTextFile("c:\staff\logins\staff\bak\ExpireStaffLogins" & dtNow & ".txt")
+            ExpFile = "1"
+        end if
+
+        if trim(MySet.fields("TypeOfProcess")) = "TC" and ChaFile = "0" then                 
+           ' msgbox "changed file opened"
+            set TFcha=FSO.CreateTextFile("c:\Staff\logins\staff\todo\ChangedTempStaffLogins" & dtNow & ".txt")
+            ChaFile = "1"
+        end if
+
+
+        ' SET Description here equal to date 
+        Description = DatePart("yyyy",xNow) & "/" & right("00" & DatePart("m",xNow),2) & "/" & right("00" & DatePart("d",xNow),2) 
+
+        statusNDS = MySet.fields("statusNDS")
+        statusSHD = MySet.fields("statusSHD")
+        statusQLR = MySet.fields("statusQLR")
+        statusProcess = MySet.fields("statusProcess")
+        QLid = MySet.fields("StaffID")
+        NDSname =  trim(MySet.fields("NDSname"))
+        Site = "staff^member"
+        Department = trim(MySet.fields("department"))
+        Forename = trim(MySet.fields("forename"))
+        Surname = trim(MySet.fields("surname"))
+        Context = trim(myset.fields("context"))
+        Homevol = trim(myset.fields("homevol"))
+        JobTitle = trim(myset.fields("job_title"))
+        EmpType = trim(myset.fields("emp_type"))
+        EmailAddress = NDSname & "@warkscol.ac.uk"
+        Tel = trim(myset.fields("Telephone"))
+        Loc_id = trim(myset.fields("loc_id")) 
+        Template=trim(myset.fields("Template"))
+        PostOffice=trim(myset.fields("PostOffice")) 
+        DeptCode = trim(MySet.fields("dept_code"))
+        TOP = trim(MySet.fields("TypeOfProcess"))
+        GWise = trim(MySet.fields("statusGroupwise"))
+        ExpireDate = trim(MySet.fields("dateLeft"))
+        TempExpireDate = trim(MySet.fields("TempEndDate"))
+        HomeVolRestrict = trim(myset.fields("HomeVolRestrict"))
+        SharedVolRestrict = trim(myset.fields("SharedVolRestrict"))
+        Vol1VolRestrict = trim(myset.fields("Vol1VolRestrict"))
+
+       ' ==== STATUS Processing ===========================
+         res = forceStatusCheck(wcIdentityDSN,NDSname)
+
+        ' ==== NDS Processing ===========================
+
+        if statusNDS = 0  and (TOP = "CR" or TOP = "ER")  and datediff("d",cdate(StartDate),cdate(now())) >= 0 then       
+
+             '  msgbox "NDS Pro " & QLid & " ," & NDSname & " ," & Site & " ," & Department & " ," & Forename & " ," & _
+             '  Surname & " ," & Context & " ," & Homevol & " ," & JobTitle & " ," & EmpType & " ," & _
+             '  EmailAddress & " ," & Tel
+         Description = "Set Created on " & Description
+          res = NDSNewApproved(wcIdentityDSN,NDSname,Site,Forename,Surname,Context,Homevol,JobTitle,Department,Tel,EmailAddress, QLid,Template,PostOffice,Description,EmpType,GWise,HomeVolRestrict,SharedVolRestrict,Vol1VolRestrict) 
+           
+        end if
+        if TOP = "LV" then       
+
+          '     msgbox "NDS Disabled " & QLid & " ," & NDSname & " ," & Site & " ," & Department & " ," & Forename & " ," & _
+          '     Surname & " ," & Context & " ," & Homevol & " ," & JobTitle & " ," & EmpType & " ," & _
+           '    EmailAddress & " ," & Tel
+ 
+          Description = "Set Disabled on " & Description
+          res = NDSDisable(wcIdentityDSN,NDSname,Site,Forename,Surname,Context,Homevol,JobTitle,Department,Tel,EmailAddress, QLid,Template,PostOffice,Description) 
+           
+        end if
+        if (TOP = "AV" or TOP = "XT") then       
+
+          '     msgbox "NDS Disabled " & QLid & " ," & NDSname & " ," & Site & " ," & Department & " ," & Forename & " ," & _
+          '     Surname & " ," & Context & " ," & Homevol & " ," & JobTitle & " ," & EmpType & " ," & _
+           '    EmailAddress & " ," & Tel
+          if TOP = "XT" then 
+             ExpireDate = TempExpireDate
+             Description = "Set to Extended (XT) on " & Description
+          else
+             Description = "Set to Expired (AV) on " & Description
+          end if
+          res = NDSExpire(wcIdentityDSN,NDSname,Site,Forename,Surname,Context,Homevol,ExpireDate,Department,Tel,EmailAddress, QLid,Template,PostOffice,Description) 
+           
+        end if
+
+        if TOP = "TC"  then       
+
+             '  msgbox "NDS Pro " & QLid & " ," & NDSname & " ," & Site & " ," & Department & " ," & Forename & " ," & _
+             '  Surname & " ," & Context & " ," & Homevol & " ," & JobTitle & " ," & EmpType & " ," & _
+             '  EmailAddress & " ," & Tel
+         Description = "Set Changed on " & Description
+          res = NDSChanged(wcIdentityDSN,NDSname,Site,Forename,Surname,Context,Homevol,JobTitle,Department,Tel,EmailAddress, QLid,Template,PostOffice,Description,EmpType,GWise) 
+           
+        end if
+
+
+
+        ' ===============================================
+
+        ' ==== QLR Processing ===========================
+        'msgbox NDSname & " - " & statusProcess & " -- " & statusQLR 
+        if statusQLR = 0 and datediff("d",cdate(StartDate),cdate(now())) >= 0 then       
+          res =  QLRNewApproved(wcIdentityDSN,NDSname,Loc_id,QLid,DeptCode,EmpType)
+        end if   
+        ' ===============================================
+
+        ' ==== SHD Processing ===========================
+        if statusSHD = 0 and datediff("d",cdate(StartDate),cdate(now())) >= 0 then       
+          res =  SHDNewApproved(wcIdentityDSN,wcNovemberUtilsDSN,NDSname,Site,Forename,Surname,QLid,JobTitle,Department,Tel,EmailAddress,EmpType)
+        end if 
+        ' ===============================================
+
+	MySet.MoveNext
+    wend
+    set TF = nothing
+    'set TFbak = nothing
+    set TFdis = nothing
+    'set TFdisbak = nothing
+    set TFcha = nothing
+
+    MySet.close
+end if

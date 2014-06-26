@@ -1,0 +1,54 @@
+dim Fsys         ' file system object
+dim sFolderName  ' Source folder name
+dim dFolderName  ' destination folder name
+dim ThisFolder   ' source folder object
+Dim AllFiles     ' source files object
+dim dFile        ' destination file
+dim ans
+dim ans2
+dim wshell
+dim mboxTitle
+dim debug
+dim quote
+dim myExe
+dim RenExe
+dim res
+dim myattach
+
+set wshShell = CreateObject("Wscript.Shell")
+
+sFolderName = "c:\staff\logins\staff\todo\"
+dFolderName = "c:\staff\logins\staff\done\"
+debug = false
+quote = """"  
+'jrbimprt.exe disablelogins.ctl disablelogins.txt /v /l=c:\staff\logins\logs\disablelogins_%%z%%m%%d%%h%%i.log
+myExe = "c:\staff\logins\jrbimprt.exe "
+RenExe = "c:\staff\logins\renobj.exe "
+myattach = "c:\staff\logins\mattach.exe alpha,charlie,delta,foxtrot,india,ka,kilo,nova,rover,sierra /h"
+' run the attach utility to attach to relevant servers
+res = wshShell.Run(myattach,0,-1)
+
+  Set Fsys = CreateObject("Scripting.FileSystemObject")
+  Set ThisFolder = Fsys.GetFolder(sFolderName)
+  Set AllFiles = ThisFolder.Files
+
+  For Each File in AllFiles
+     dFile = left(File.Name,len(File.Name)-4) & ".log"
+
+    if Lcase(left(File.Name,3)) = "new"  or Lcase(left(File.Name,2)) = "rt" then
+         res = wshShell.Run(quote & myExe & quote & " c:\staff\logins\NewStaff.ctl " & sFolderName & File.Name & " /x=10 /v /l=" & dFolderName & dfile,0,-1)
+         File.Move dFolderName & File.Name 
+    end if  
+    if Lcase(left(File.Name,3)) = "dis" then
+         res = wshShell.Run(quote & myExe & quote & " c:\staff\logins\disableStaff.ctl " & sFolderName & File.Name & " /v /l=" & dFolderName & dfile,0,-1)
+         File.Move dFolderName & File.Name 
+    end if  
+    if Lcase(left(File.Name,3)) = "exp" then
+         res = wshShell.Run(quote & myExe & quote & " c:\staff\logins\ExpireStaff.ctl " & sFolderName & File.Name & " /v /l=" & dFolderName & dfile,0,-1)
+         File.Move dFolderName & File.Name 
+    end if  
+    if Lcase(left(File.Name,3)) = "cha" then
+         res = wshShell.Run(quote & myExe & quote & " c:\staff\logins\ChangedStaff.ctl " & sFolderName & File.Name & " /v /l=" & dFolderName & dfile,0,-1)
+         File.Move dFolderName & File.Name 
+    end if  
+  next

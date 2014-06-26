@@ -1,0 +1,203 @@
+using System;
+using System.IO;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Data;
+using System.Data.SqlClient;
+using System.Configuration;
+
+
+
+namespace sql_data
+{
+    public class sql_data
+    {
+        String mNovellName = "";
+        String mNetName = "";
+        String mLogFile = "";
+        String mGroupMembership = "";
+        String mFirstName = "";
+        String mStaffID = "";
+
+        public bool putLog(String csName, String sqlQuery){
+            DateTime dt = DateTime.Now;
+            try
+            {
+                StreamWriter sw = new StreamWriter(mLogFile, true);
+                sw.WriteLine(dt.ToString("yyyy-MM-dd HH:mm") + " " + mNetName);
+                sw.WriteLine(csName);
+                sw.WriteLine(sqlQuery);
+                sw.Close();
+                return true;
+            }
+            catch (Exception ue)
+            {
+                String ueDesc = ue.Message;
+                StreamWriter sw = new StreamWriter(mLogFile, true);
+                sw.WriteLine(dt.ToString("yyyy-MM-dd HH:mm") + " " + mNetName);
+                sw.WriteLine(csName);
+                sw.WriteLine(sqlQuery);
+                sw.WriteLine(ueDesc);
+                sw.Close();
+                return false;
+            }
+        }
+        
+        public sql_data(NameValueCollection nvc)
+        {
+            String serverType = ConfigurationManager.AppSettings["serverType"];
+            if(nvc!=null)
+                if (nvc.Count > 0)
+                {
+                    if (serverType == "test")
+                    {
+                        if ((nvc["novellName"] != null) && (nvc["novellName"] != ""))
+                            mNovellName = nvc["novellName"];
+                        else
+                            mNovellName = ConfigurationManager.AppSettings["testNovellName"];
+                        if ((nvc["netName"] != null) && (nvc["netName"] != ""))
+                            mNetName = nvc["netName"];
+                        else
+                            mNetName = ConfigurationManager.AppSettings["testNetName"];
+                        if ((nvc["groupMembership"] != null) && (nvc["groupMembership"] != ""))
+                            mGroupMembership = nvc["groupMembership"];
+                        else
+                            mGroupMembership = ConfigurationManager.AppSettings["testGroupMembership"];
+                        if (String.IsNullOrEmpty(nvc["firstName"]))
+                            mFirstName = ConfigurationManager.AppSettings["testFirstName"];
+                        else
+                            mFirstName = nvc["firstName"];
+                        if (String.IsNullOrEmpty(nvc["staffID"]))
+                            mStaffID = ConfigurationManager.AppSettings["testStaffID"];
+                        else
+                            mStaffID = nvc["staffID"];
+                        //mStaffID = ConfigurationManager.AppSettings["testStaffID"];
+                    }
+                    else
+                    {   // iChain link: Using ServerVariables collection
+                        String DN = nvc["HTTP_X_DN"];
+                        if (DN.IndexOf("ISM") > 0)
+                            mNetName = nvc["HTTP_X_USERID"].Trim() + ".ISM";
+                        else
+                            mNetName = nvc["HTTP_X_USERID"].Trim() + ".USERS";
+                        mNovellName = nvc["HTTP_X_USERID"].Trim();
+                        if (String.IsNullOrEmpty(nvc["HTTP_X_FIRSTNAME"]))
+                            mFirstName = "system account";
+                        else
+                            mFirstName = nvc["HTTP_X_FIRSTNAME"].Trim();
+                        if (!String.IsNullOrEmpty(nvc["QUERY_STRING"]))
+                        {   // Check attempted spoof 1.
+                            if (nvc["QUERY_STRING"].ToUpper().IndexOf("HTTP_X_USERID") > -1) { 
+                                mNovellName = ""; 
+                            }
+                        }
+                        //GroupMembership reader
+                        if(!String.IsNullOrEmpty(nvc["HTTP_X_GROUPMEMBERSHIP"]))
+                            mGroupMembership = nvc["HTTP_X_GROUPMEMBERSHIP"];
+                        else
+                            mGroupMembership = "";
+                        if(String.IsNullOrEmpty(nvc["HTTP_X_EMPLOYEENUMBER"]))
+                            mStaffID = "XXXXXXXX";
+                        else
+                            mStaffID=nvc["HTTP_X_EMPLOYEENUMBER"];
+
+                    }
+                }
+            if (ConfigurationManager.AppSettings["logFile"] != null)
+            {
+                
+                mLogFile = ConfigurationManager.AppSettings["logFile"];
+                if (!File.Exists(mLogFile))
+                {
+                    try
+                    {
+                        StreamWriter sw = File.CreateText(mLogFile);
+                    }
+                    catch (Exception ue)
+                    {
+                        String msg=ue.Message;
+                    }
+                }
+            }
+            else
+            {
+                mLogFile = "";
+            }
+            if (mLogFile == "")
+            {
+                mNovellName = "";
+            }
+            else
+                if(String.IsNullOrEmpty(nvc["URL"]))
+                {
+                    putLog("Open Page", "");
+                }
+                else
+                {
+                    putLog("Open Page", nvc["URL"]);
+                }
+
+            if (mNovellName == null) mNovellName = "";
+            if (mNovellName == "") mNetName = ".USERS";
+
+        }
+
+        public DataView dataView(String csName, String sqlQuery)
+        {
+            if (mNovellName != "")
+            {
+                if(putLog(csName, sqlQuery))
+                {
+                    ConnectionStringSettingsCollection connections =
+                        ConfigurationManager.ConnectionStrings;
+                    DataTable dt = new DataTable();
+                    SqlConnection connUtility = new SqlConnection(
+                        connections[csName].ConnectionString
+                        );
+                    try
+                    {
+                        SqlDataAdapter adp = new SqlDataAdapter();
+                        SqlCommand cmd = new SqlCommand(sqlQuery, connUtility);
+                        adp.SelectCommand = cmd;
+                        try { adp.Fill(dt); }
+                        catch (Exception ue) { putLog(csName + ":dataView Error", ue.Message); };
+                    }
+                    finally { connUtility.Close(); }
+                    return dt.DefaultView;
+                }
+                else
+                    return null;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public String novellName(){ return mNovellName; }
+        public String netName(){ return mNetName; }
+        public String firstName(){ return mFirstName; }
+        public String staffID() { return mStaffID; }
+
+        public String[] groupList()
+        {
+            return mGroupMembership.Replace(
+                ",o=WC", "").Replace(",ou=", ".").Replace("cn=", "").Split(
+                new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries
+            );
+        }
+
+        public Boolean IsInRole(String aRoleName)
+        {
+            Boolean wIsInRole=false;
+            foreach(String s in groupList()){
+                if(s==aRoleName) wIsInRole=true;
+            }
+            return wIsInRole;
+        }
+
+        public String lastAY() { return "06"; }
+        public String nextAY() { return "08"; }
+        public String thisAY() { return "07"; }
+    }
+}

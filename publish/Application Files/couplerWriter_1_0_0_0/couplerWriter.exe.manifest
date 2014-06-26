@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<asmv1:assembly manifestVersion="1.0" xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1">
+  <asmv1:assemblyIdentity version="1.0.0.0" name="couplerWriter.exe" publicKeyToken="b1fe78a25be77306" language="neutral" processorArchitecture="msil" type="win32" />
+  <application />
+  <entryPoint>
+    <assemblyIdentity name="couplerWriter" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
+    <commandLine file="couplerWriter.exe" parameters="" />
+  </entryPoint>
+  <trustInfo>
+    <security>
+      <applicationRequestMinimum>
+        <PermissionSet class="System.Security.PermissionSet" version="1" ID="Custom" SameSite="site" Unrestricted="true" />
+        <defaultAssemblyRequest permissionSetReference="Custom" />
+      </applicationRequestMinimum>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <!-- UAC Manifest Options
+            If you want to change the Windows User Account Control level replace the 
+            requestedExecutionLevel node with one of the following.
+
+        <requestedExecutionLevel  level="asInvoker" uiAccess="false" />
+        <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
+        <requestedExecutionLevel  level="highestAvailable" uiAccess="false" />
+
+            Specifying requestedExecutionLevel node will disable file and registry virtualization.
+            If you want to utilize File and Registry Virtualization for backward 
+            compatibility then delete the requestedExecutionLevel node.
+        -->
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+  <dependency>
+    <dependentOS>
+      <osVersionInfo>
+        <os majorVersion="4" minorVersion="10" buildNumber="0" servicePackMajor="0" />
+      </osVersionInfo>
+    </dependentOS>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="preRequisite" allowDelayedBinding="true">
+      <assemblyIdentity name="Microsoft.Windows.CommonLanguageRuntime" version="2.0.50727.0" />
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="couplerWriter.exe" size="47616">
+      <assemblyIdentity name="couplerWriter" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+        <dsig:DigestValue>tepMjhGX7UGp/EuARNag9/CQTss=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <!-- A list of all Windows versions that this application is designed to work with. Windows will automatically select the most compatible environment.-->
+      <!-- If your application is designed to work with Windows 7, uncomment the following supportedOS node-->
+      <!--<supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>-->
+    </application>
+  </compatibility>
+<publisherIdentity name="CN=WARKSCOL\slangley" issuerKeyHash="5022835bdd5b9a5f3e2b60a14e06cb207b596fa0" /><Signature Id="StrongNameSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" /><DigestValue>j9COBJxh+d/UpCKbghLJ7jZwte8=</DigestValue></Reference></SignedInfo><SignatureValue>GaI8u4hln0Yqp18U1dZfEbQBAn27NSW9FuEt7J04/csfV9f2B3GlbvzPJ29OihyTIyXZSP31f9sgArDDjZbPehgsjYov04bS4knCddKbRVPemBixgwW899u82/kpjUt3SKiXLs83VkZE8i012V0zMwpoPZyECV1yJxwOMkCmWTE=</SignatureValue><KeyInfo Id="StrongNameKeyInfo"><KeyValue><RSAKeyValue><Modulus>vXQZG4ySRIxmM6SElLTBDTaNaEYfktHZ832mrjOz6/1Gs9T0l5fztwFK3UZlkSIGLok3AzdDgqssrpE+MUlHocOOkrA+oMWK15+P8RSQ1SYRTMn8Zcow2LZXupWvVnA5l0v/86+WNQi5NQX62DZlO3CK9z18MptkEIZXRQFKKn8=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><msrel:RelData xmlns:msrel="http://schemas.microsoft.com/windows/rel/2005/reldata"><r:license xmlns:r="urn:mpeg:mpeg21:2003:01-REL-R-NS" xmlns:as="http://schemas.microsoft.com/windows/pki/2005/Authenticode"><r:grant><as:ManifestInformation Hash="efb57036eec912829b22a4d4dff9619c048ed08f" Description="" Url=""><as:assemblyIdentity version="1.0.0.0" name="couplerWriter.exe" publicKeyToken="b1fe78a25be77306" language="neutral" processorArchitecture="msil" type="win32" /></as:ManifestInformation><as:SignedBy /><as:AuthenticodePublisher><as:X509SubjectName>CN=WARKSCOL\slangley</as:X509SubjectName></as:AuthenticodePublisher></r:grant><r:issuer><Signature Id="AuthenticodeSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" /><DigestValue>/l2oKB7ZN3pTvN6N1yeA5Ko0aRM=</DigestValue></Reference></SignedInfo><SignatureValue>Q23saQd5H+DMNiZlMQzeJoldiU4G/ZoP6bz7Uw5KsgBEMCrIyyzBqNdsOWvRpAccRzhn4iunfxUSI67HISeJg2MWn9ku5WhlnRGHlPOCvlLEvnuM41fV0nfFw07pAux73sqHAlXLdGKHFYvHfWSFcRPupc3o8BjTackN/0pR3gw=</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>vXQZG4ySRIxmM6SElLTBDTaNaEYfktHZ832mrjOz6/1Gs9T0l5fztwFK3UZlkSIGLok3AzdDgqssrpE+MUlHocOOkrA+oMWK15+P8RSQ1SYRTMn8Zcow2LZXupWvVnA5l0v/86+WNQi5NQX62DZlO3CK9z18MptkEIZXRQFKKn8=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>MIIB3TCCAUagAwIBAgIQfugWeqEKvI1B08f3ZqnINDANBgkqhkiG9w0BAQUFADAtMSswKQYDVQQDHiIAVwBBAFIASwBTAEMATwBMAFwAcwBsAGEAbgBnAGwAZQB5MB4XDTExMTAwNDEwMzc0NFoXDTEyMTAwMzE2Mzc0NFowLTErMCkGA1UEAx4iAFcAQQBSAEsAUwBDAE8ATABcAHMAbABhAG4AZwBsAGUAeTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAvXQZG4ySRIxmM6SElLTBDTaNaEYfktHZ832mrjOz6/1Gs9T0l5fztwFK3UZlkSIGLok3AzdDgqssrpE+MUlHocOOkrA+oMWK15+P8RSQ1SYRTMn8Zcow2LZXupWvVnA5l0v/86+WNQi5NQX62DZlO3CK9z18MptkEIZXRQFKKn8CAwEAATANBgkqhkiG9w0BAQUFAAOBgQBNB6qDLPsHvKJxo0SQ77rIxTpZtpTadz59igv54htRV65Lp3U8rjIlBoi6+IEoV5iFaYPEB2j8/tjsvzs00WG3tx+k4lHWzn0RXfT4eXfVs91vy3CJIzBbjJyvIfbfSs5uXBLzsmEB6HcB4VaXcikKYxKtKuzhSNC3ofo2PuEQIw==</X509Certificate></X509Data></KeyInfo></Signature></r:issuer></r:license></msrel:RelData></KeyInfo></Signature></asmv1:assembly>

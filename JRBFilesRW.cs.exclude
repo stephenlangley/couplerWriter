@@ -1,0 +1,900 @@
+using System;
+using System.DirectoryServices;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+
+using System.Text;
+
+namespace couplerWriter
+{
+    class coupler
+    {
+        protected String mActionName = "";
+        String mDoPhaseFilter = "";
+        String mTestPhaseFilter = "";
+        public coupler() { }
+        protected virtual void doSelectedPhase(staffSpecSL aStaffSpecSL, DateTime runDateTime) { }
+        //protected virtual void doEnable(staffSpecSL aStaffSpecSL, DateTime runDateTime) { }
+        //protected virtual void doDisable(staffSpecSL aStaffSpecSL, DateTime runDateTime) { }
+        protected virtual void testSelectedPhase(staffSpecSL aStaffSpecSL, DateTime runDateTime) { }
+        //protected virtual void testEnable(staffSpecSL aStaffSpecSL, DateTime runDateTime) { }
+        //protected virtual void testDisable(staffSpecSL aStaffSpecSL, DateTime runDateTime) { }
+        public void doPhase(DataView aCouplerDV, DateTime runDateTime) 
+        {
+            aCouplerDV.RowFilter = "action='" + mActionName + "'";
+            //mDoPhaseFilter;
+            if (aCouplerDV.Count > 0) doSelectedPhase(new staffSpecSL(aCouplerDV), runDateTime);
+        }
+        protected void doConfirmOK(String aNDSName, String aAction)
+        {
+
+        }
+        public void testPhase(DataView aCouplerDV, DateTime runDateTime) 
+        {
+            aCouplerDV.RowFilter = mTestPhaseFilter;
+            if (aCouplerDV.Count > 0) testSelectedPhase(new staffSpecSL(aCouplerDV), runDateTime);
+        }
+    }
+
+    class jrbCoupler : coupler
+    {
+        protected String mJRBFilesPath = "";
+
+        public jrbCoupler() : base() { }
+
+        public jrbCoupler(String aJRBFilesPath){ mJRBFilesPath = aJRBFilesPath; }
+
+        protected virtual String doSelectedItem(staffSpec aStaffSpec){ return ""; }
+
+        protected override void doSelectedPhase(staffSpecSL aStaffSpecSL, DateTime runDateTime)
+        {
+            if (aStaffSpecSL.Count > 0)
+            {
+                StreamWriter wNewNDSStream = new StreamWriter(
+                    mJRBFilesPath + runDateTime.ToString("yyyyMMddHHmmss") + ".txt"
+                    );
+                foreach (staffSpec ss in aStaffSpecSL.Values) wNewNDSStream.WriteLine(doSelectedItem(ss));
+                wNewNDSStream.Close();
+            }
+        }
+
+        private void addAttributeValue(
+            SortedList<String, List<String>> aAttributeSet,
+            String aAttributeName, String aAttributeValue
+        )
+        {
+            if (!aAttributeSet.ContainsKey(aAttributeName))
+            {
+                List<String> wAttributeList = new List<string>();
+                aAttributeSet.Add(aAttributeName, wAttributeList);
+            }
+            aAttributeSet[aAttributeName].Add(aAttributeValue);
+        }
+
+        protected SortedList<String, List<String>> GetLDAPInfo(String aFilter)
+        {
+            SortedList<String, List<String>> wSL = null;
+            String domainAndUsername = @"LDAP://212.219.42.19/o=WC";
+            string userName = string.Empty;
+            string passWord = string.Empty;
+            AuthenticationTypes at = AuthenticationTypes.Anonymous;
+
+            //Create the object necessary to read the info from the LDAP directory
+            DirectoryEntry entry = new DirectoryEntry(domainAndUsername, userName, passWord, at);
+            DirectorySearcher mySearcher = new DirectorySearcher(entry);
+            SearchResultCollection results;
+            mySearcher.Filter = aFilter;
+
+            try
+            {
+                results = mySearcher.FindAll();
+                if (results.Count > 0)
+                {
+                    SearchResult resEnt = results[0];
+                    {
+                        wSL = new SortedList<String, List<String>>();
+                        ResultPropertyCollection propcoll = resEnt.Properties;
+                        String wKey = "";
+                        foreach (string key in propcoll.PropertyNames)
+                        {
+                            wKey = key;
+                            switch (key)
+                            {
+                                case "sn": wKey = "surname"; break;
+                                case "l": wKey = "location"; break;
+                                case "st": wKey = "state"; break;
+                                case "uid": wKey = "userid"; break;
+                                default: break;
+                            }
+                            if (key != "nsimhint")
+                                foreach (object values in propcoll[key])
+                                    addAttributeValue(wSL, wKey, values.ToString());
+                        }
+                        //mResult.Add(wSL["cn"][0], wSL);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+            }
+            return wSL;
+        }
+
+        protected override void testSelectedPhase(staffSpecSL aStaffSpecSL, DateTime runDateTime) { }
+
+    }
+
+    class jrbCouplerCreate : jrbCoupler
+    {
+        public jrbCouplerCreate(String aJRBFilesPath)
+        {
+            mJRBFilesPath = aJRBFilesPath + "\\staff\\todo\\NewStaffLogins";
+            mActionName = "CreateNDS";
+        }
+
+        protected override String doSelectedItem(staffSpec aStaffSpec)
+        {
+            if (aStaffSpec.QLId != "")
+            {
+                String FullName = aStaffSpec.Forename + " " + aStaffSpec.Surname;
+                String Password = "seaside";
+                String ExpireDate = "none";
+                String Description = "Created on " + DateTime.Now;
+                String wNewStaffJRBText =
+                    // "!Template=" + aStaffSpec.Template + "\n" +
+                    "!Name context = " + "users" + aStaffSpec.Context + "\n" +
+                    "!Home directory volume=" + aStaffSpec.HomeVol + "\n" +
+                    "!Home directory path=users\n";
+                if (aStaffSpec.GWise)
+                    wNewStaffJRBText +=
+                        "!Groupwise add users=y" + "\n" +
+                        "!Groupwise domain object=.warkscollege.groupwise.wc" + "\n" +
+                        "!Groupwise post office=" + aStaffSpec.PostOffice + "\n";
+                wNewStaffJRBText +=
+                    "\"" + aStaffSpec.NDSName + "\"" + "," + "\"" + aStaffSpec.Surname.ToUpper() + "\"" +
+                    "," + "\"" + aStaffSpec.Forename.ToUpper() + "\"" + "," + "\"" + Password + "\"" +
+                    "," + "\"" + FullName.ToUpper() + "\"" + "," + "\"" + aStaffSpec.Department.ToUpper() + "\"" +
+                    //"," + "\"" + aStaffSpec.Site.ToUpper() + "\"" + 
+                    "," + "\"" + aStaffSpec.JobTitle.ToUpper() + "\"" +
+                    "," + "\"" + aStaffSpec.Tel + "\"" + "," + "\"" + aStaffSpec.EmailAddress.ToUpper() + "\"" +
+                    "," + "\"" + Description + "\"" +
+                    "," + "\"" + aStaffSpec.StaffID + "\"" +
+                    "," + "\"" + ExpireDate + "\"" +
+                    "," + "\"" + aStaffSpec.HomeVolRestrict + "\"" +
+                    "," + "\"" + aStaffSpec.SharedVolRestrict + "\"" +
+                    "," + "\"" + aStaffSpec.Vol1VolRestrict + "\"";
+
+                return wNewStaffJRBText;
+            }
+            else return "";
+        }
+
+        protected override void testSelectedPhase(staffSpecSL aStaffSpecSL, DateTime runDateTime) 
+        {
+            foreach (staffSpec ss in aStaffSpecSL.Values)
+            {
+                SortedList<String, List<String>> wSL=GetLDAPInfo("cn=" + ss.NDSName);
+                if(wSL!=null)
+                    if (wSL.ContainsKey("logindisabled"))
+                        if (wSL["logindisabled"].Count>0)
+                            if (wSL["logindisabled"][0] == "false")
+                                doConfirmOK(ss.NDSName, mActionName);
+            }
+        }
+
+    }
+
+    class jrbCouplerEnable : jrbCoupler
+    {
+        public jrbCouplerEnable(String aJRBFilesPath)
+        {
+            mJRBFilesPath = aJRBFilesPath + "\\staff\\todo\\NewStaffLogins";
+            mActionName = "EnableNDS";
+        }
+
+        protected override String doSelectedItem(staffSpec aStaffSpec)
+        {
+            if (aStaffSpec.QLId != "")
+            {
+                String FullName = aStaffSpec.Forename + " " + aStaffSpec.Surname;
+                String Password = "seaside";
+                String ExpireDate = "none";
+                String Description = "Created on " + DateTime.Now;
+                String wNewStaffJRBText =
+                    // "!Template=" + aStaffSpec.Template + "\n" +
+                    "!Name context = " + "users" + aStaffSpec.Context + "\n" +
+                    "!Home directory volume=" + aStaffSpec.HomeVol + "\n" +
+                    "!Home directory path=users\n";
+                if (aStaffSpec.GWise)
+                    wNewStaffJRBText +=
+                        "!Groupwise add users=y" + "\n" +
+                        "!Groupwise domain object=.warkscollege.groupwise.wc" + "\n" +
+                        "!Groupwise post office=" + aStaffSpec.PostOffice + "\n";
+                wNewStaffJRBText +=
+                    "\"" + aStaffSpec.NDSName + "\"" + "," + "\"" + aStaffSpec.Surname.ToUpper() + "\"" +
+                    "," + "\"" + aStaffSpec.Forename.ToUpper() + "\"" + "," + "\"" + Password + "\"" +
+                    "," + "\"" + FullName.ToUpper() + "\"" + "," + "\"" + aStaffSpec.Department.ToUpper() + "\"" +
+                    //"," + "\"" + aStaffSpec.Site.ToUpper() + "\"" + 
+                    "," + "\"" + aStaffSpec.JobTitle.ToUpper() + "\"" +
+                    "," + "\"" + aStaffSpec.Tel + "\"" + "," + "\"" + aStaffSpec.EmailAddress.ToUpper() + "\"" +
+                    "," + "\"" + Description + "\"" +
+                    "," + "\"" + aStaffSpec.StaffID + "\"" +
+                    "," + "\"" + ExpireDate + "\"" +
+                    "," + "\"" + aStaffSpec.HomeVolRestrict + "\"" +
+                    "," + "\"" + aStaffSpec.SharedVolRestrict + "\"" +
+                    "," + "\"" + aStaffSpec.Vol1VolRestrict + "\"";
+
+                return wNewStaffJRBText;
+            }
+            else return "";
+        }
+
+        protected override void testSelectedPhase(staffSpecSL aStaffSpecSL, DateTime runDateTime)
+        {
+            foreach (staffSpec ss in aStaffSpecSL.Values)
+            {
+                SortedList<String, List<String>> wSL = GetLDAPInfo("cn=" + ss.NDSName);
+                if (wSL != null)
+                    if (wSL.ContainsKey("logindisabled"))
+                        if (wSL["logindisabled"].Count > 0)
+                            if (wSL["logindisabled"][0] == "false")
+                                doConfirmOK(ss.NDSName, mActionName);
+            }
+        }
+
+    }
+
+    class jrbCouplerDisable : jrbCoupler
+    {
+        public jrbCouplerDisable(String aJRBFilesPath)
+        {
+            mJRBFilesPath = aJRBFilesPath + "\\staff\\todo\\NewStaffLogins";
+            mActionName = "DisableNDS";
+        }
+
+        protected override String doSelectedItem(staffSpec aStaffSpec)
+        {
+            if (aStaffSpec.QLId != "")
+            {
+                String FullName = aStaffSpec.Forename + " " + aStaffSpec.Surname;
+                String Password = "seaside";
+                String ExpireDate = "none";
+                String Description = "Created on " + DateTime.Now;
+                String wNewStaffJRBText =
+                    // "!Template=" + aStaffSpec.Template + "\n" +
+                    "!Name context = " + "users" + aStaffSpec.Context + "\n" +
+                    "!Home directory volume=" + aStaffSpec.HomeVol + "\n" +
+                    "!Home directory path=users\n";
+                if (aStaffSpec.GWise)
+                    wNewStaffJRBText +=
+                        "!Groupwise add users=y" + "\n" +
+                        "!Groupwise domain object=.warkscollege.groupwise.wc" + "\n" +
+                        "!Groupwise post office=" + aStaffSpec.PostOffice + "\n";
+                wNewStaffJRBText +=
+                    "\"" + aStaffSpec.NDSName + "\"" + "," + "\"" + aStaffSpec.Surname.ToUpper() + "\"" +
+                    "," + "\"" + aStaffSpec.Forename.ToUpper() + "\"" + "," + "\"" + Password + "\"" +
+                    "," + "\"" + FullName.ToUpper() + "\"" + "," + "\"" + aStaffSpec.Department.ToUpper() + "\"" +
+                    //"," + "\"" + aStaffSpec.Site.ToUpper() + "\"" + 
+                    "," + "\"" + aStaffSpec.JobTitle.ToUpper() + "\"" +
+                    "," + "\"" + aStaffSpec.Tel + "\"" + "," + "\"" + aStaffSpec.EmailAddress.ToUpper() + "\"" +
+                    "," + "\"" + Description + "\"" +
+                    "," + "\"" + aStaffSpec.StaffID + "\"" +
+                    "," + "\"" + ExpireDate + "\"" +
+                    "," + "\"" + aStaffSpec.HomeVolRestrict + "\"" +
+                    "," + "\"" + aStaffSpec.SharedVolRestrict + "\"" +
+                    "," + "\"" + aStaffSpec.Vol1VolRestrict + "\"";
+
+                return wNewStaffJRBText;
+            }
+            else return "";
+        }
+
+        protected override void testSelectedPhase(staffSpecSL aStaffSpecSL, DateTime runDateTime)
+        {
+            foreach (staffSpec ss in aStaffSpecSL.Values)
+            {
+                SortedList<String, List<String>> wSL = GetLDAPInfo("cn=" + ss.NDSName);
+                if (wSL != null)
+                    if (wSL.ContainsKey("logindisabled"))
+                        if (wSL["logindisabled"].Count > 0)
+                            if (wSL["logindisabled"][0] == "true")
+                                doConfirmOK(ss.NDSName, mActionName);
+            }
+        }
+
+    }
+
+    class defaultCoupler : coupler
+    {
+        protected String mCSSHDDB, mCSEHDDB, mCSQLRDB;
+
+        public defaultCoupler() : base() { }
+
+        public defaultCoupler(String csSHDDB, String csEHDDB, String csQLRDB)
+        {
+            mCSEHDDB = csEHDDB;
+            mCSQLRDB = csQLRDB;
+            mCSSHDDB = csSHDDB;
+        }
+
+        protected virtual void doSelectedItem(staffSpec aStaffSpec)
+        {
+            String HDInsert =
+                "st_eventSHDNewApproved " +
+                "'" + aStaffSpec.EmailAddress + "', " +
+                "'" + aStaffSpec.Site + "', " +
+                "'" + aStaffSpec.Forename.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.Surname.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.QLId + "', " +
+                "'" + aStaffSpec.Department.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.Tel + "', '" + aStaffSpec.EmpType + "'";
+            DataView wDV;
+            //EHDDB
+            wDV = staffUtility.readDataView(staffUtility.XrayUtilDB, HDInsert);
+            //SDDDB
+            wDV = staffUtility.readDataView(staffUtility.NovUtilDB, HDInsert);
+            //QLR
+            wDV = staffUtility.readDataView(staffUtility.couplerDB,
+                "st_eventQLRNewApproved " +
+                "'" + aStaffSpec.NDSName + "', '" + aStaffSpec.Site + "', '" + aStaffSpec.QLId + "', '" + aStaffSpec.DeptCode + "', '" + aStaffSpec.EmpType + "'"
+            );
+        }
+
+        protected override void doSelectedPhase(staffSpecSL aStaffSpecSL, DateTime runDateTime)
+        {
+            if (aStaffSpecSL.Count > 0)
+                foreach (staffSpec aSS in aStaffSpecSL.Values)
+                    doSelectedItem(aSS);
+        }
+
+        protected override void testSelectedPhase(staffSpecSL aStaffSpecSL, DateTime runDateTime)
+        {
+            //List<String> successes = new List<string>();
+            DataView wDV;
+            foreach (staffSpec wSS in aStaffSpecSL.Values)
+            {
+                wDV = staffUtility.readDataView(staffUtility.EHDDB,
+                    "SELECT COUNT(*) AS matches FROM people " +
+                    "WHERE user_email='" + wSS.NDSName + "@warkscol.ac.uk'"
+                );
+                if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                        {
+                            wDV = staffUtility.readDataView(staffUtility.SHDDB,
+                                "SELECT COUNT(*) AS matches FROM people " +
+                                "WHERE user_email='" + wSS.NDSName + "@warkscol.ac.uk'"
+                            );
+                            if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                                    {
+                                        wDV = staffUtility.readDataView(staffUtility.couplerDB,
+                                            "SELECT COUNT(*) AS matches FROM wcPortal..wcQLRreportUsers " +
+                                            "WHERE NDSName='" + wSS.NDSName + "'"
+                                        );
+                                        if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                                                    //successes.Add(wSS.queueItem.ToString());
+                                                    doConfirmOK(wSS.NDSName, mActionName);
+                                    }
+
+                        }
+            }
+            //return successes.ToArray();
+        }
+
+
+    }
+
+
+    class defaultCouplerCreate : defaultCoupler
+    {
+        public defaultCouplerCreate(String csSHDDB, String csEHDDB, String csQLRDB)
+            :base(csSHDDB, csEHDDB, csQLRDB)
+        { mActionName = "CreateDefault"; }
+
+        protected override void doSelectedItem(staffSpec aStaffSpec)
+        {
+            String HDInsert =
+                "st_eventSHDNewApproved " +
+                "'" + aStaffSpec.EmailAddress + "', " +
+                "'" + aStaffSpec.Site + "', " +
+                "'" + aStaffSpec.Forename.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.Surname.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.QLId + "', " +
+                "'" + aStaffSpec.Department.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.Tel + "', '" + aStaffSpec.EmpType + "'";
+            DataView wDV;
+            //EHDDB
+            wDV = staffUtility.readDataView(staffUtility.XrayUtilDB, HDInsert);
+            //SDDDB
+            wDV = staffUtility.readDataView(staffUtility.NovUtilDB, HDInsert);
+            //QLR
+            wDV = staffUtility.readDataView(staffUtility.couplerDB,
+                "st_eventQLRNewApproved " +
+                "'" + aStaffSpec.NDSName + "', '" + aStaffSpec.Site + "', '" + aStaffSpec.QLId + "', '" + aStaffSpec.DeptCode + "', '" + aStaffSpec.EmpType + "'"
+            );
+        }
+
+        protected override void testSelectedPhase(staffSpecSL aStaffSpecSL, DateTime runDateTime)
+        {
+            //List<String> successes = new List<string>();
+            DataView wDV;
+            foreach (staffSpec wSS in aStaffSpecSL.Values)
+            {
+                wDV = staffUtility.readDataView(staffUtility.EHDDB,
+                    "SELECT COUNT(*) AS matches FROM people " +
+                    "WHERE user_email='" + wSS.NDSName + "@warkscol.ac.uk'"
+                );
+                if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                        {
+                            wDV = staffUtility.readDataView(staffUtility.SHDDB,
+                                "SELECT COUNT(*) AS matches FROM people " +
+                                "WHERE user_email='" + wSS.NDSName + "@warkscol.ac.uk'"
+                            );
+                            if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                                    {
+                                        wDV = staffUtility.readDataView(staffUtility.couplerDB,
+                                            "SELECT COUNT(*) AS matches FROM wcPortal..wcQLRreportUsers " +
+                                            "WHERE NDSName='" + wSS.NDSName + "'"
+                                        );
+                                        if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                                                    //successes.Add(wSS.queueItem.ToString());
+                                                    doConfirmOK(wSS.NDSName, mActionName);
+                                    }
+
+                        }
+            }
+            //return successes.ToArray();
+        }
+
+    }
+
+
+    class defaultCouplerEnable : defaultCoupler
+    {
+        public defaultCouplerEnable(String csSHDDB, String csEHDDB, String csQLRDB)
+            : base(csSHDDB, csEHDDB, csQLRDB)
+        { mActionName = "CreateDefault"; }
+
+        protected override void doSelectedItem(staffSpec aStaffSpec)
+        {
+            String HDInsert =
+                "st_eventSHDNewApproved " +
+                "'" + aStaffSpec.EmailAddress + "', " +
+                "'" + aStaffSpec.Site + "', " +
+                "'" + aStaffSpec.Forename.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.Surname.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.QLId + "', " +
+                "'" + aStaffSpec.Department.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.Tel + "', '" + aStaffSpec.EmpType + "'";
+            DataView wDV;
+            //EHDDB
+            wDV = staffUtility.readDataView(staffUtility.XrayUtilDB, HDInsert);
+            //SDDDB
+            wDV = staffUtility.readDataView(staffUtility.NovUtilDB, HDInsert);
+            //QLR
+            wDV = staffUtility.readDataView(staffUtility.couplerDB,
+                "st_eventQLRNewApproved " +
+                "'" + aStaffSpec.NDSName + "', '" + aStaffSpec.Site + "', '" + aStaffSpec.QLId + "', '" + aStaffSpec.DeptCode + "', '" + aStaffSpec.EmpType + "'"
+            );
+        }
+
+        protected override void testSelectedPhase(staffSpecSL aStaffSpecSL, DateTime runDateTime)
+        {
+            //List<String> successes = new List<string>();
+            DataView wDV;
+            foreach (staffSpec wSS in aStaffSpecSL.Values)
+            {
+                wDV = staffUtility.readDataView(staffUtility.EHDDB,
+                    "SELECT COUNT(*) AS matches FROM people " +
+                    "WHERE user_email='" + wSS.NDSName + "@warkscol.ac.uk'"
+                );
+                if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                        {
+                            wDV = staffUtility.readDataView(staffUtility.SHDDB,
+                                "SELECT COUNT(*) AS matches FROM people " +
+                                "WHERE user_email='" + wSS.NDSName + "@warkscol.ac.uk'"
+                            );
+                            if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                                    {
+                                        wDV = staffUtility.readDataView(staffUtility.couplerDB,
+                                            "SELECT COUNT(*) AS matches FROM wcPortal..wcQLRreportUsers " +
+                                            "WHERE NDSName='" + wSS.NDSName + "'"
+                                        );
+                                        if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                                                    //successes.Add(wSS.queueItem.ToString());
+                                                    doConfirmOK(wSS.NDSName, mActionName);
+                                    }
+
+                        }
+            }
+            //return successes.ToArray();
+        }
+
+    }
+
+
+    class defaultCouplerDisable : defaultCoupler
+    {
+        public defaultCouplerDisable(String csSHDDB, String csEHDDB, String csQLRDB)
+            : base(csSHDDB, csEHDDB, csQLRDB)
+        { mActionName = "CreateDefault"; }
+
+        protected override void doSelectedItem(staffSpec aStaffSpec)
+        {
+            String HDInsert =
+                "st_eventSHDNewApproved " +
+                "'" + aStaffSpec.EmailAddress + "', " +
+                "'" + aStaffSpec.Site + "', " +
+                "'" + aStaffSpec.Forename.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.Surname.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.QLId + "', " +
+                "'" + aStaffSpec.Department.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.Tel + "', '" + aStaffSpec.EmpType + "'";
+            DataView wDV;
+            //EHDDB
+            wDV = staffUtility.readDataView(staffUtility.XrayUtilDB, HDInsert);
+            //SDDDB
+            wDV = staffUtility.readDataView(staffUtility.NovUtilDB, HDInsert);
+            //QLR
+            wDV = staffUtility.readDataView(staffUtility.couplerDB,
+                "st_eventQLRNewApproved " +
+                "'" + aStaffSpec.NDSName + "', '" + aStaffSpec.Site + "', '" + aStaffSpec.QLId + "', '" + aStaffSpec.DeptCode + "', '" + aStaffSpec.EmpType + "'"
+            );
+        }
+
+        protected override void testSelectedPhase(staffSpecSL aStaffSpecSL, DateTime runDateTime)
+        {
+            //List<String> successes = new List<string>();
+            DataView wDV;
+            foreach (staffSpec wSS in aStaffSpecSL.Values)
+            {
+                wDV = staffUtility.readDataView(staffUtility.EHDDB,
+                    "SELECT COUNT(*) AS matches FROM people " +
+                    "WHERE user_email='" + wSS.NDSName + "@warkscol.ac.uk'"
+                );
+                if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                        {
+                            wDV = staffUtility.readDataView(staffUtility.SHDDB,
+                                "SELECT COUNT(*) AS matches FROM people " +
+                                "WHERE user_email='" + wSS.NDSName + "@warkscol.ac.uk'"
+                            );
+                            if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                                    {
+                                        wDV = staffUtility.readDataView(staffUtility.couplerDB,
+                                            "SELECT COUNT(*) AS matches FROM wcPortal..wcQLRreportUsers " +
+                                            "WHERE NDSName='" + wSS.NDSName + "'"
+                                        );
+                                        if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                                                    //successes.Add(wSS.queueItem.ToString());
+                                                    doConfirmOK(wSS.NDSName, mActionName);
+                                    }
+
+                        }
+            }
+            //return successes.ToArray();
+        }
+
+    }
+
+
+    class defaultCouplerDelete : defaultCoupler
+    {
+        public defaultCouplerDelete(String csSHDDB, String csEHDDB, String csQLRDB)
+            : base(csSHDDB, csEHDDB, csQLRDB)
+        { mActionName = "CreateDefault"; }
+
+        protected override void doSelectedItem(staffSpec aStaffSpec)
+        {
+            String HDInsert =
+                "st_eventSHDNewApproved " +
+                "'" + aStaffSpec.EmailAddress + "', " +
+                "'" + aStaffSpec.Site + "', " +
+                "'" + aStaffSpec.Forename.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.Surname.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.QLId + "', " +
+                "'" + aStaffSpec.Department.Replace("'", "''") + "', " +
+                "'" + aStaffSpec.Tel + "', '" + aStaffSpec.EmpType + "'";
+            DataView wDV;
+            //EHDDB
+            wDV = staffUtility.readDataView(staffUtility.XrayUtilDB, HDInsert);
+            //SDDDB
+            wDV = staffUtility.readDataView(staffUtility.NovUtilDB, HDInsert);
+            //QLR
+            wDV = staffUtility.readDataView(staffUtility.couplerDB,
+                "st_eventQLRNewApproved " +
+                "'" + aStaffSpec.NDSName + "', '" + aStaffSpec.Site + "', '" + aStaffSpec.QLId + "', '" + aStaffSpec.DeptCode + "', '" + aStaffSpec.EmpType + "'"
+            );
+        }
+
+        protected override void testSelectedPhase(staffSpecSL aStaffSpecSL, DateTime runDateTime)
+        {
+            //List<String> successes = new List<string>();
+            DataView wDV;
+            foreach (staffSpec wSS in aStaffSpecSL.Values)
+            {
+                wDV = staffUtility.readDataView(staffUtility.EHDDB,
+                    "SELECT COUNT(*) AS matches FROM people " +
+                    "WHERE user_email='" + wSS.NDSName + "@warkscol.ac.uk'"
+                );
+                if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                        {
+                            wDV = staffUtility.readDataView(staffUtility.SHDDB,
+                                "SELECT COUNT(*) AS matches FROM people " +
+                                "WHERE user_email='" + wSS.NDSName + "@warkscol.ac.uk'"
+                            );
+                            if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                                    {
+                                        wDV = staffUtility.readDataView(staffUtility.couplerDB,
+                                            "SELECT COUNT(*) AS matches FROM wcPortal..wcQLRreportUsers " +
+                                            "WHERE NDSName='" + wSS.NDSName + "'"
+                                        );
+                                        if (wDV != null) if (wDV.Count > 0) if ((int)wDV[0]["matches"] > 0)
+                                                    //successes.Add(wSS.queueItem.ToString());
+                                                    doConfirmOK(wSS.NDSName, mActionName);
+                                    }
+
+                        }
+            }
+            //return successes.ToArray();
+        }
+
+    }
+
+    class JRBFilesRW
+    {
+        /* Class to provide file IO for NDS updates and lookups
+         * using JRBUtils
+         */
+        String mJRBFilesPath = "";
+        String mOnNDSFile = "onNDSFile.txt";
+        String mJBLookupExe = "jblookup.exe";
+        String mJBLookupBat = "\\staff\\todo\\jblookup.bat";
+
+        public JRBFilesRW(String aJRBFilesPath)
+        {
+            mJRBFilesPath = aJRBFilesPath;
+        }
+        // createNDSEnableString
+        private String enableNDSString(staffSpec aStaffSpec)
+        {
+            if (aStaffSpec.QLId != "")
+            {
+                String FullName = aStaffSpec.Forename + " " + aStaffSpec.Surname;
+                String ExpireDate = "none";
+                String Password = ""; //default
+                String[] AD = aStaffSpec.ActionData.Split('=');
+                if (AD[0].ToString() == "Password")  // generated by StaffActivate
+                {
+                    Password = AD[1].ToString();
+                }
+                String Description = "Updated on " + DateTime.Now;
+                String wNewStaffJRBText =
+                    // "!Template=" + aStaffSpec.Template + "\n" +
+                    "!Name context = " + "users" + aStaffSpec.Context + "\n";
+                wNewStaffJRBText +=
+                    "\"" + aStaffSpec.NDSName + "\"" + "," + "\"" + aStaffSpec.Surname.ToUpper() + "\"" +
+                    "," + "\"" + aStaffSpec.Forename.ToUpper() + "\"" + 
+                    "," + "\"" + Password + "\"" +
+                    "," + "\"" + FullName.ToUpper() + "\"" + "," + "\"" + aStaffSpec.Department.ToUpper() + "\"" +
+                    //"," + "\"" + aStaffSpec.Site.ToUpper() + "\"" + 
+                    "," + "\"" + aStaffSpec.JobTitle.ToUpper() + "\"" +
+                    "," + "\"" + aStaffSpec.Tel + "\"" + "," + "\"" + aStaffSpec.EmailAddress.ToUpper() + "\"" +
+                    "," + "\"" + Description + "\"" +
+                    "," + "\"" + aStaffSpec.StaffID + "\"" +
+                    "," + "\"" + ExpireDate + "\"";
+                    //"," + "\"" + aStaffSpec.HomeVolRestrict + "\"" +
+                    //"," + "\"" + aStaffSpec.SharedVolRestrict + "\"" +
+                    //"," + "\"" + aStaffSpec.Vol1VolRestrict + "\"";
+
+                return wNewStaffJRBText;
+            }
+            else return "";
+        }
+
+        private String disableNDSString(staffSpec aStaffSpec)
+        {
+            if (aStaffSpec.QLId != "")
+            {
+                String FullName = aStaffSpec.Forename + " " + aStaffSpec.Surname;
+                String ExpireDate = "none";
+                String Password = ""; //default
+                String[] AD = aStaffSpec.ActionData.Split('=');
+                if (AD[0].ToString() == "Password")  // generated by StaffActivate
+                {
+                    Password = AD[1].ToString();
+                }
+                String Description = "Disabled on " + DateTime.Now;
+                String wNewStaffJRBText =
+                    // "!Template=" + aStaffSpec.Template + "\n" +
+                    "!Name context = " + "users" + aStaffSpec.Context + "\n";
+                wNewStaffJRBText +=
+                    "\"" + aStaffSpec.NDSName + "\"" + "," + "\"" + aStaffSpec.Surname.ToUpper() + "\"" +
+                    "," + "\"" + aStaffSpec.Forename.ToUpper() + "\"" +
+                    "," + "\"" + Password + "\"" +
+                    "," + "\"" + FullName.ToUpper() + "\"" + "," + "\"" + aStaffSpec.Department.ToUpper() + "\"" +
+                    //"," + "\"" + aStaffSpec.Site.ToUpper() + "\"" + 
+                    "," + "\"" + aStaffSpec.JobTitle.ToUpper() + "\"" +
+                    "," + "\"" + aStaffSpec.Tel + "\"" + "," + "\"" + aStaffSpec.EmailAddress.ToUpper() + "\"" +
+                    "," + "\"" + Description + "\"" +
+                    "," + "\"" + aStaffSpec.StaffID + "\"" +
+                    "," + "\"" + ExpireDate + "\"";
+                //"," + "\"" + aStaffSpec.HomeVolRestrict + "\"" +
+                //"," + "\"" + aStaffSpec.SharedVolRestrict + "\"" +
+                //"," + "\"" + aStaffSpec.Vol1VolRestrict + "\"";
+
+                return wNewStaffJRBText;
+            }
+            else return "";
+        }
+        
+        private String createNDSString(staffSpec aStaffSpec)
+        {
+            if (aStaffSpec.QLId != "")
+            {
+                String FullName = aStaffSpec.Forename + " " + aStaffSpec.Surname;
+                String Password = "seaside";
+                String ExpireDate = "none";
+                String Description = "Created on " + DateTime.Now;
+                String wNewStaffJRBText =
+                   // "!Template=" + aStaffSpec.Template + "\n" +
+                    "!Name context = " + "users" + aStaffSpec.Context + "\n" +
+                    "!Home directory volume=" + aStaffSpec.HomeVol + "\n" +
+                    "!Home directory path=users\n";
+                if (aStaffSpec.GWise)
+                    wNewStaffJRBText +=
+                        "!Groupwise add users=y" + "\n" +
+                        "!Groupwise domain object=.warkscollege.groupwise.wc" + "\n" +
+                        "!Groupwise post office=" + aStaffSpec.PostOffice + "\n";
+                wNewStaffJRBText +=
+                    "\"" + aStaffSpec.NDSName + "\"" + "," + "\"" + aStaffSpec.Surname.ToUpper() + "\"" +
+                    "," + "\"" + aStaffSpec.Forename.ToUpper() + "\"" + "," + "\"" + Password + "\"" +
+                    "," + "\"" + FullName.ToUpper() + "\"" + "," + "\"" + aStaffSpec.Department.ToUpper() + "\"" +
+                    //"," + "\"" + aStaffSpec.Site.ToUpper() + "\"" + 
+                    "," + "\"" + aStaffSpec.JobTitle.ToUpper() + "\"" +
+                    "," + "\"" + aStaffSpec.Tel + "\"" + "," + "\"" + aStaffSpec.EmailAddress.ToUpper() + "\"" +
+                    "," + "\"" + Description + "\"" +
+                    "," + "\"" + aStaffSpec.StaffID + "\"" +
+                    "," + "\"" + ExpireDate + "\"" +
+                    "," + "\"" + aStaffSpec.HomeVolRestrict + "\"" +
+                    "," + "\"" + aStaffSpec.SharedVolRestrict + "\"" +
+                    "," + "\"" + aStaffSpec.Vol1VolRestrict + "\"";
+
+                return wNewStaffJRBText;
+            }
+            else return "";
+        }
+
+        public void create(staffSpecSL aStaffSpecSL, DateTime runDateTime)
+        {
+            if (aStaffSpecSL.Count > 0)
+            {
+                StreamWriter wNewNDSStream = new StreamWriter(
+                    mJRBFilesPath + "\\staff\\todo\\NewStaffLogins" + runDateTime.ToString("yyyyMMddHHmmss") + ".txt"
+                    );
+                foreach (staffSpec ss in aStaffSpecSL.Values)
+                    wNewNDSStream.WriteLine(createNDSString(ss));
+                wNewNDSStream.Close();
+            }
+        }
+
+        public void enable(staffSpecSL aStaffSpecSL, DateTime runDateTime)
+        {
+            if (aStaffSpecSL.Count > 0)
+            {
+                StreamWriter wNewNDSStream = new StreamWriter(
+                    mJRBFilesPath + "\\staff\\todo\\EnableStaffLogins" + runDateTime.ToString("yyyyMMddHHmmss") + ".txt"
+                    );
+                foreach (staffSpec ss in aStaffSpecSL.Values)
+                    wNewNDSStream.WriteLine(enableNDSString(ss));
+                wNewNDSStream.Close();
+            }
+        }
+
+        public void disable(staffSpecSL aStaffSpecSL, DateTime runDateTime)
+        {
+            if (aStaffSpecSL.Count > 0)
+            {
+                StreamWriter wNewNDSStream = new StreamWriter(
+                    mJRBFilesPath + "\\staff\\todo\\DisableStaffLogins" + runDateTime.ToString("yyyyMMddHHmmss") + ".txt"
+                    );
+                foreach (staffSpec ss in aStaffSpecSL.Values)
+                    wNewNDSStream.WriteLine(disableNDSString(ss));
+                wNewNDSStream.Close();
+            }
+        }
+
+        public void createLookupFile(String[] aNDSNameSet)
+        {
+            StreamWriter wNewNDSStream = new StreamWriter(mJRBFilesPath + mJBLookupBat);
+            foreach (String s in aNDSNameSet)
+                wNewNDSStream.WriteLine(
+                    mJRBFilesPath + mJBLookupExe + 
+                    " \"" + s + "\" /j /y=s /l=filename,\"" + mOnNDSFile + "\"\n"
+                );
+            wNewNDSStream.Close(); 
+        }
+
+        private void addAttributeValue(
+            SortedList<String, List<String>> aAttributeSet,
+            String aAttributeName, String aAttributeValue
+        )
+        {
+            if (!aAttributeSet.ContainsKey(aAttributeName))
+            {
+                List<String> wAttributeList = new List<string>();
+                aAttributeSet.Add(aAttributeName, wAttributeList);
+            }
+            aAttributeSet[aAttributeName].Add(aAttributeValue);
+        }
+
+        public SortedList<String, List<String>> GetLDAPInfo(String aFilter)
+        {
+            SortedList<String, List<String>> wSL = null;
+            String domainAndUsername = @"LDAP://212.219.42.19/o=WC";
+            string userName = string.Empty;
+            string passWord = string.Empty;
+            AuthenticationTypes at = AuthenticationTypes.Anonymous;
+
+            //Create the object necessary to read the info from the LDAP directory
+            DirectoryEntry entry = new DirectoryEntry(domainAndUsername, userName, passWord, at);
+            DirectorySearcher mySearcher = new DirectorySearcher(entry);
+            SearchResultCollection results;
+            mySearcher.Filter = aFilter;
+
+            try
+            {
+                results = mySearcher.FindAll();
+                if (results.Count > 0)
+                {
+                    SearchResult resEnt = results[0];
+                    {
+                        wSL = new SortedList<String, List<String>>();
+                        ResultPropertyCollection propcoll = resEnt.Properties;
+                        String wKey = "";
+                        foreach (string key in propcoll.PropertyNames)
+                        {
+                            wKey = key;
+                            switch (key)
+                            {
+                                case "sn": wKey = "surname"; break;
+                                case "l": wKey = "location"; break;
+                                case "st": wKey = "state"; break;
+                                case "uid": wKey = "userid"; break;
+                                default: break;
+                            }
+                            if (key != "nsimhint")
+                                foreach (object values in propcoll[key])
+                                    addAttributeValue(wSL, wKey, values.ToString());
+                        }
+                        //mResult.Add(wSL["cn"][0], wSL);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+            }
+            return wSL;
+        }
+
+        public String[] createSucceeded(staffSpecSL aStaffSpecSL)
+        {
+            List<String> wCS = new List<String>();
+            StreamReader wNewNDSStream = new StreamReader(mJRBFilesPath + "\\staff\\todo\\" + mOnNDSFile);
+            String wOnNDSLine="";
+            while (!wNewNDSStream.EndOfStream)
+            {
+                wOnNDSLine = wNewNDSStream.ReadLine();
+                if (wOnNDSLine.Length > 0) wOnNDSLine = wOnNDSLine.Trim().Substring(12);
+                if (aStaffSpecSL.ContainsKey(wOnNDSLine))
+                    wCS.Add(aStaffSpecSL[wOnNDSLine].queueItem.ToString());
+                //do we need to send e-mail to Line manager here?
+            }
+            
+            wNewNDSStream.Close();
+            StreamWriter wNewNDSStream2 = new StreamWriter(mJRBFilesPath + "\\staff\\todo\\" + mOnNDSFile);
+            wNewNDSStream2.Close();
+            return wCS.ToArray();
+        }
+    }
+}
