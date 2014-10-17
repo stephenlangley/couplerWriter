@@ -260,7 +260,7 @@ namespace couplerWriter
                         staffUtility.updateWcStaffIdentity(ss.NDSName, "SET NDSdisabled = 0");
 
                         mTestedOK.Add(ss.queueItem.ToString());
-                        staffUtility.writeCouplerMessageQueueV2(ss.NDSName, "", "CreateHomeDirectory");// Write a coupler job to Enable an exchange account
+                        //staffUtility.writeCouplerMessageQueueV2(ss.NDSName, "", "CreateHomeDirectory");// Write a coupler job to Enable an exchange account
                         staffUtility.writeCouplerMessageQueueV2(ss.NDSName, "", "ExchangeEnable");// Write a coupler job to Enable an exchange account
                         staffUtility.writeCouplerMessageQueueV2(ss.NDSName, "", "CreateLearningChannel");// Write a coupler job to create a learning channel account
                         staffUtility.writeCouplerMessageQueueV2(ss.NDSName, "", "CreateGoogleLogins");// Write a coupler job to create a Google account

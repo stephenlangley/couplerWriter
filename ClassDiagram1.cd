@@ -1,117 +1,284 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Font Name="Tahoma" Size="8.25" />
-  <Class Name="couplerWriter.coupler">
-    <Position X="0.5" Y="0.5" Width="1.5" />
+  <Class Name="couplerWriter.coupler" Collapsed="true">
+    <Position X="0.5" Y="3" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
     <TypeIdentifier>
-      <FileName>couplers.cs</FileName>
       <HashCode>AAAAAAAAAQAAgAAAAAAQAAADAAAAEAAAAEAIAAAAASA=</HashCode>
+      <FileName>couplers.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="couplerWriter.couplerWriter">
-    <Position X="0.5" Y="3.75" Width="1.5" />
+  <Class Name="couplerWriter.couplerWriter" Collapsed="true">
+    <Position X="0.5" Y="1.25" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
     <TypeIdentifier>
-      <FileName>couplerWriter.cs</FileName>
       <HashCode>AAEBAAAAgQAAgAAAAAAAAAAAABAAEAAAAEAIAAAAACA=</HashCode>
+      <FileName>couplerWriter.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="couplerWriter.defaultCoupler" Collapsed="true">
-    <Position X="2.75" Y="3" Width="1.5" />
+    <Position X="2.25" Y="4.5" Width="1.5" />
     <TypeIdentifier>
+      <HashCode>AAAAICAAABAAAAAAAAAQCAACgAAAEAAAAUAQAAAAAAg=</HashCode>
       <FileName>defaultCoupler.cs</FileName>
-      <HashCode>AAAAACAAABAAAAAAAAAQCAACgAAAEAAAAAAQAAAAAAg=</HashCode>
     </TypeIdentifier>
   </Class>
   <Class Name="couplerWriter.defaultCouplerCreate" Collapsed="true">
-    <Position X="7.25" Y="4.5" Width="1.5" />
+    <Position X="12" Y="8.25" Width="1.75" />
     <TypeIdentifier>
-      <FileName>defaultCoupler.cs</FileName>
       <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>defaultCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="couplerWriter.defaultCouplerEnable">
-    <Position X="10.75" Y="2.75" Width="1.5" />
+  <Class Name="couplerWriter.defaultCouplerEnable" Collapsed="true">
+    <Position X="14" Y="8.25" Width="1.75" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
     <TypeIdentifier>
-      <FileName>defaultCoupler.cs</FileName>
       <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>defaultCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="couplerWriter.defaultCouplerDisable" Collapsed="true">
-    <Position X="2.75" Y="4.5" Width="1.5" />
+    <Position X="7.25" Y="8.25" Width="1.75" />
     <TypeIdentifier>
-      <FileName>defaultCoupler.cs</FileName>
       <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>defaultCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="couplerWriter.defaultCouplerTrash" Collapsed="true">
-    <Position X="5.75" Y="3" Width="1.5" />
+    <Position X="5.25" Y="8.25" Width="1.75" />
     <TypeIdentifier>
-      <FileName>defaultCoupler.cs</FileName>
       <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>defaultCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="couplerWriter.defaultCouplerDelete">
-    <Position X="9.25" Y="1.5" Width="1.5" />
+  <Class Name="couplerWriter.defaultCouplerDelete" Collapsed="true">
+    <Position X="16" Y="8.25" Width="1.75" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
     <TypeIdentifier>
-      <FileName>defaultCoupler.cs</FileName>
       <HashCode>AAAAAAAAABAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>defaultCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="couplerWriter.defaultCouplerUpdateUserName" Collapsed="true">
-    <Position X="5" Y="4.5" Width="1.5" />
+    <Position X="9.25" Y="8.25" Width="2.5" />
     <TypeIdentifier>
-      <FileName>defaultCoupler.cs</FileName>
       <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>defaultCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="couplerWriter.defaultCouplerChangeDetails" Collapsed="true">
-    <Position X="5.75" Y="2" Width="1.5" />
+    <Position X="18" Y="8.25" Width="2.75" />
     <TypeIdentifier>
-      <FileName>defaultCoupler.cs</FileName>
       <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>defaultCoupler.cs</FileName>
     </TypeIdentifier>
-    <InheritanceLine Type="couplerWriter.defaultCoupler" FixedFromPoint="true">
-      <Path>
-        <Point X="4.25" Y="3.25" />
-        <Point X="4.625" Y="3.25" />
-        <Point X="4.625" Y="2.315" />
-        <Point X="5.75" Y="2.315" />
-      </Path>
-    </InheritanceLine>
   </Class>
-  <Class Name="couplerWriter.jrbCoupler">
-    <Position X="4.5" Y="5.75" Width="1.5" />
+  <Class Name="couplerWriter.jrbCoupler" Collapsed="true">
+    <Position X="2.25" Y="9.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
     <TypeIdentifier>
-      <FileName>jrbCoupler.cs</FileName>
       <HashCode>AAAAAAgAAAAAAAAAUAAQAAACAAAGAAAAAAAQAAAAAAE=</HashCode>
+      <FileName>jrbCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="couplerWriter.jrbCouplerCreate" Collapsed="true">
-    <Position X="2.25" Y="8.75" Width="1.5" />
+    <Position X="6.25" Y="11.75" Width="1.5" />
     <TypeIdentifier>
-      <FileName>jrbCoupler.cs</FileName>
       <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="couplerWriter.jrbCouplerEnable" Collapsed="true">
-    <Position X="7.75" Y="7.25" Width="1.5" />
+    <Position X="9.75" Y="11.75" Width="1.5" />
     <TypeIdentifier>
-      <FileName>jrbCoupler.cs</FileName>
       <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="couplerWriter.jrbCouplerDisable">
-    <Position X="2.5" Y="7.25" Width="1.5" />
+  <Class Name="couplerWriter.jrbCouplerDisable" Collapsed="true">
+    <Position X="4.5" Y="11.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
     <TypeIdentifier>
-      <FileName>jrbCoupler.cs</FileName>
       <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="couplerWriter.jrbCouplerDelete" Collapsed="true">
-    <Position X="7.5" Y="8.75" Width="1.5" />
+    <Position X="8" Y="11.75" Width="1.5" />
     <TypeIdentifier>
-      <FileName>jrbCoupler.cs</FileName>
       <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="couplerWriter.jrbCouplerChangeDetails" Collapsed="true">
+    <Position X="3.75" Y="14" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCouplerChange.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.jrbCouplerChangeContact" Collapsed="true">
+    <Position X="11.75" Y="14" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCouplerChange.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.jrbCouplerAddToGroup" Collapsed="true">
+    <Position X="14.5" Y="14" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAIAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCouplerChange.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.jrbCouplerRemoveFromGroup" Collapsed="true">
+    <Position X="6.5" Y="14" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAIAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCouplerChange.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.jrbCouplerChangeSite" Collapsed="true">
+    <Position X="19.5" Y="14" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCouplerChange.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.jrbCouplerProxy" Collapsed="true">
+    <Position X="17.25" Y="14" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCouplerChange.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.jrbCouplerChangeLogin" Collapsed="true">
+    <Position X="9" Y="14" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCouplerChange.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.jrbCouplerUpdate" Collapsed="true">
+    <Position X="18" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCoupler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.jrbCouplerHomeDir" Collapsed="true">
+    <Position X="20" Y="11.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCoupler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.jrbCouplerReSetHomeDir" Collapsed="true">
+    <Position X="13.25" Y="11.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCoupler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.jrbCouplerTrash" Collapsed="true">
+    <Position X="11.5" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCoupler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.jrbCouplerClearNDSGroups" Collapsed="true">
+    <Position X="15.5" Y="11.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>jrbCoupler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.defaultCouplerCreateGoogleGroup" Collapsed="true">
+    <Position X="5" Y="6.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>defaultCoupler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.defaultCouplerCreateGoogle" Collapsed="true">
+    <Position X="10.25" Y="6.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>defaultCoupler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.defaultCouplerCreateGoogleOU" Collapsed="true">
+    <Position X="15.25" Y="6.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>defaultCoupler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.defaultCouplerRestoreGoogle" Collapsed="true">
+    <Position X="18" Y="6.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>defaultCoupler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.defaultCouplerSuspendGoogle" Collapsed="true">
+    <Position X="7.75" Y="6.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>defaultCoupler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.defaultCouplerDeleteGoogle" Collapsed="true">
+    <Position X="12.75" Y="6.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>defaultCoupler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.staffSpec" Collapsed="true">
+    <Position X="2.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>SYAQDECAAkAAgABCAUEBAAAQFQAQACIQABBBCiAIIAA=</HashCode>
+      <FileName>staffSpec.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.staffSpecSL" Collapsed="true">
+    <Position X="2.75" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>staffSpec.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.staffUtility" Collapsed="true">
+    <Position X="0.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAogAABCAAAACAAAAkAAISAAEAAAAAMAAAAQAACAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="couplerWriter.Program" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAIAAAAACAAAAAAAAAAAAAIAAAAABAAAEAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Tahoma" Size="8.25" />
 </ClassDiagram>

@@ -15,6 +15,7 @@ namespace couplerWriter
 
         public AppsService service;
         public AppsService serviceTEST;
+        public OrganizationService serviceORG;
 
         public defaultCoupler
             (String csEHDDB, String csSHDDB, String csQLRDB, String aActionName, int aTryCount)
@@ -25,6 +26,12 @@ namespace couplerWriter
             {
                 service = new AppsService("warwickshire.ac.uk", "system@warwickshire.ac.uk", "b4ckb34t");
                 serviceTEST = new AppsService("test.warwickshire.ac.uk", "system@warwickshire.ac.uk", "b4ckb34t");
+                OrganizationService serviceO = new OrganizationService("warwickshire.ac.uk", "apps");
+                serviceO.setUserCredentials("system@warwickshire.ac.uk", "b4ckb34t");
+                AppsExtendedEntry AE =  serviceO.RetrieveCustomerId("warwickshire.ac.uk");
+                serviceORG = new OrganizationService("warwickshire.ac.uk", "Google Apps");
+                serviceORG.setUserCredentials("system@warwickshire.ac.uk", "b4ckb34t");
+                //serviceORG.UpdateOrganizationUser("slangley@warwickshire.ac.uk", "slangley@warwickshire.ac.uk","student","staff");
 
                 //service = new AppsService("warwickshire.ac.uk", "gadmin@warwickshire.ac.uk", "adcv325jemin");
                 //serviceTEST = new AppsService("test.warwickshire.ac.uk", "gadmin@warwickshire.ac.uk", "adcv325jemin");
@@ -984,6 +991,78 @@ namespace couplerWriter
                     mTestedOK.Add(wSS.queueItem.ToString());
                     //Write a coupler job for moveObject here
                     staffUtility.writeCouplerMessageQueueV2(wSS.NDSName, "", "GoogleGroupAdd");
+                    staffUtility.writeCouplerMessageQueueV2(wSS.NDSName, "", "CreateGoogleOU");
+
+                }
+                catch (AppsException uex)
+                {
+                    String msg = uex.Message;
+                    String sReason = uex.Reason.ToString();
+                    if (wSS.attempts > mTryCount) mFailed.Add(wSS.queueItem.ToString());
+                    if (uex.ErrorCode == AppsException.EntityDoesNotExist)
+                    {
+                        //User does not exist in Google Apps
+                    }
+                }
+
+                //if (testSelectedItem(wSS, "T", "T", "Y"))
+                //    mTestedOK.Add(wSS.queueItem.ToString());
+                //else
+                //    if (wSS.attempts > mTryCount) mFailed.Add(wSS.queueItem.ToString());
+            }
+        }
+
+    }
+    //==================================================================================================
+    class defaultCouplerCreateGoogleOU : defaultCoupler
+    {
+        public defaultCouplerCreateGoogleOU
+            (String csSHDDB, String csEHDDB, String csQLRDB, String aActionName, int aTryCount)
+            : base(csSHDDB, csEHDDB, csQLRDB, aActionName, aTryCount) { }
+
+        protected override void doSelectedItem(staffSpec aStaffSpec)
+        {
+                    try
+                    {
+                        // UserEntry ueCreate = service.CreateUser("atestLAN12347", "Steve", "Langley", "c0v3ntry");
+
+                        UserEntry ue = service.RetrieveUser(aStaffSpec.NDSName.ToString());
+                        AppsExtendedEntry OrgUser = serviceORG.RetrieveOrganizationUser("C02u22n9o", aStaffSpec.NDSName.ToString().Trim().ToLower() + "@warwickshire.ac.uk");
+                        String CurrentOrgUnit = OrgUser.getPropertyValueByName("orgUnitPath").ToUpper().Trim();
+                        AppsExtendedEntry OrgUserCreate = serviceORG.UpdateOrganizationUser("C02u22n9o", aStaffSpec.NDSName.ToString().Trim().ToLower() + "@warwickshire.ac.uk", "STAFF", CurrentOrgUnit.ToString());
+                        mWritten.Add(aStaffSpec.queueItem.ToString());
+                        //String[] queueItem;
+                        //queueItem = new String[1];
+                        //queueItem[0] = aStaffSpec.queueItem.ToString();
+                        //int rowsChanged = staffUtility.updateCouplerMessageQueueSet(queueItem, " ");
+                    }
+                    catch (AppsException uexi)
+                    {
+                        String msgi = uexi.Message;
+                        String sReasoni = uexi.Reason.ToString();
+                        if (uexi.ErrorCode == AppsException.UserDeletedRecently)
+                        {
+                            //User deleted recently - wait at least 5 days ok
+                        }
+                    }
+        }
+    
+    protected override void testSelectedPhase(staffSpecSL aStaffSpecSL, DateTime runDateTime)
+        {
+            // AppsService service = new AppsService("warwickshire.ac.uk", "gadmin@warwickshire.ac.uk", "adcv325jemin");
+
+            foreach (staffSpec wSS in aStaffSpecSL.Values)
+            {
+
+                try
+                {
+                    UserEntry ue = service.RetrieveUser(wSS.NDSName.ToString());
+
+                    AppsExtendedEntry OrgUser = serviceORG.RetrieveOrganizationUser("C02u22n9o", wSS.NDSName.ToString().Trim() + "@warwickshire.ac.uk");
+                    if (OrgUser.getPropertyValueByName("orgUnitPath").ToUpper().Trim() == "STAFF")
+                    {
+                        mTestedOK.Add(wSS.queueItem.ToString());
+                    }
 
                 }
                 catch (AppsException uex)
@@ -1006,7 +1085,6 @@ namespace couplerWriter
 
     }
 
- 
 
     // -------------------------------------------------------------------------------------------------------------
     class defaultCouplerRestoreGoogle : defaultCoupler
