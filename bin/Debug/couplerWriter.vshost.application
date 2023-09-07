@@ -3,15 +3,18 @@
   <assemblyIdentity name="couplerWriter.application" version="1.0.0.2" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <description asmv2:publisher="Warwickshire College" asmv2:product="couplerWriter" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <deployment install="true" mapFileExtensions="true" />
+  <compatibleFrameworks xmlns="urn:schemas-microsoft-com:clickonce.v2">
+    <framework targetVersion="4.0" profile="Full" supportedRuntime="4.0.30319" />
+  </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="couplerWriter.exe.manifest" size="7082">
+    <dependentAssembly dependencyType="install" codebase="couplerWriter.exe.manifest" size="16866">
       <assemblyIdentity name="couplerWriter.exe" version="1.0.0.2" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>6z3+zwcTWHERf9IzbFN6LSaFbWM=</dsig:DigestValue>
+        <dsig:DigestValue>FdtpDQ+69aPxGywTPQajmTcIm0g=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

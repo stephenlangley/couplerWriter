@@ -13,7 +13,7 @@ namespace couplerWriter
 
     class staffUtility
     {
-        // Connection strings in .net2 framework64
+        // Connection strings in .net4 framework64
          // change csIDUniformDB back to csIDNovDB when creating the executable after DEVELOPMENT/TESTING
         static public String couplerDB = "csIDNovDB";
         //static public String couplerDB = "csIDUniformDB";
@@ -21,10 +21,10 @@ namespace couplerWriter
         static public String XrayUtilDB = "csUtilsXrayDB";
         static public String NovUtilDB = "csUtilityNovDB";
 // =======================================================================
-        static String mLogFile = "c:\\temp\\coupler.log";
+        static String mLogFile = "c:\\temp\\staffcoupler.log";
         static String mNetName = "idmCoupler";
 
-        static private bool putLog(String aCSName, String aSqlQuery)
+        static public bool putLog(String aCSName, String aSqlQuery)
         {
             DateTime dt = DateTime.Now;
             try
@@ -49,6 +49,15 @@ namespace couplerWriter
             }
         }
 
+       static public string Base64UrlEncode(string input)
+        {
+            //var inputBytes = System.Text.Encoding.UTF8.GetBytes(input);
+            // Special "url-safe" base64 encode.
+            //encoded = encoded.replace(/\//g,'_').replace(/\+/g,'-').replace(/\=/g,'*');
+            return input.Replace('+', '-').Replace('/', '_').Replace("=", "");
+        }
+
+
         static public String calculateMD5Hash(string input)
         {
             // step 1, calculate MD5 hash from input
@@ -68,7 +77,10 @@ namespace couplerWriter
         static public String createGooglePassword(String ndsName)
         {
             String password;
-            password = calculateMD5Hash(DateTime.Now.TimeOfDay.TotalMilliseconds.ToString().Substring(1,4) + ndsName.Substring(ndsName.Length-4,4));
+            String passNdsname = ndsName.ToString().Trim() + "CreateMePassword";
+            if (ndsName.Length > 4) passNdsname = ndsName.ToString();
+
+            password = calculateMD5Hash(DateTime.Now.TimeOfDay.TotalMilliseconds.ToString().Substring(1,4) + passNdsname.Substring(passNdsname.Length-4,4));
             if (password.Length > 11) 
             {
                 return password.Substring(0,12);
@@ -117,14 +129,15 @@ namespace couplerWriter
         }
         static public DataView couplerDV(String whereClause)
         {
-            return readDataView(staffUtility.couplerDB,
-                "SELECT DISTINCT w.NDSName, w.EmployeeNumber, w.loc_id, w.emp_type, w.statusGroupwise, w.keepProxy, " +
-                "isnull(p.forenames,w.forename) as forename, isnull(p.surname,w.surname) as surname, isnull(p.faculty,w.department) as department, isnull(p.job,w.job_Title) as job_title, isnull(p.phone_no,w.telephone) as telephone, " + 
+            String cDV = "SELECT DISTINCT w.NDSName, w.EmployeeNumber, w.loc_id, w.emp_type, w.statusGroupwise, w.keepProxy, isnull('0','0') as VisitingLec, w.WCG_Ltd, " +
+                "isnull(p.forenames,w.forename) as forename, isnull(p.surname,w.surname) as surname, isnull(p.faculty,w.department) as department, isnull(p.job,w.job_Title) as job_title, isnull(p.phone_no,w.telephone) as telephone, " +
                 "c.networkname, c.actionData, c.action, c.queueItem, c.attempts, c.whenRead " +
                 "FROM couplerMessageQueue c LEFT JOIN wcStaffIdentity w ON " +
-                "  w.NDSname=c.networkName " + "LEFT JOIN phone_list p ON " +
-                " w.EmployeeNumber=p.emp_id " + whereClause
-            );
+                "  w.NDSname=c.networkName " + "LEFT JOIN phone_list_newPhone p ON " +
+                " w.EmployeeNumber=p.emp_id " + whereClause;  
+            // "LEFT JOIN wcTempHR t ON " + " w.EmployeeNumber=t.EmployeeNumber " + whereClause;
+
+            return readDataView(staffUtility.couplerDB, cDV);
         }
 
         static public int updateCouplerMessageQueueSet(String[] aQueueItemSet, String aSetString)
@@ -176,7 +189,7 @@ namespace couplerWriter
             try
             {
                 DataView updateDV = staffUtility.readDataView(
-                    "csIDNovDB",
+                    "csEmailDB",
                     "email..wcIDMpostEmail '" + aTo +"'" +
                     ", '" + aFrom +"'" +
                     ", '" + aCC + "'" +

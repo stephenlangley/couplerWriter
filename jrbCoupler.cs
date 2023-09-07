@@ -67,7 +67,7 @@ namespace couplerWriter
         protected SortedList<String, List<String>> GetLDAPInfo(String aFilter)
         {
             SortedList<String, List<String>> wSL = null;
-            String domainAndUsername = @"LDAP://212.219.42.19/o=WC";
+            String domainAndUsername = @"LDAP://212.219.42.54/o=WC";
             string userName = string.Empty;
             string passWord = string.Empty;
             AuthenticationTypes at = AuthenticationTypes.Anonymous;

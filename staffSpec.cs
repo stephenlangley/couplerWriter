@@ -10,7 +10,7 @@ namespace couplerWriter
         public String
             NDSName, EmailAddress, EmailAddressGoogle, Context, QLId, StaffID, Template, Profile,
             Forename, Surname, SQLSurname, /*Aka, */ 
-            Site, DeptCode, Department, JobTitle, EmpType, Tel, LocID,
+            Site, DeptCode, Department, JobTitle, EmpType, Tel, LocID, VisitingLec, WCG_Ltd,
             HomeVol,SecondHomeVol, ThirdHomeVol, HomeVolRestrict, SharedVolRestrict, Vol1VolRestrict, PostOffice, ActionData,
             GroupMembership,EmpID
         ;
@@ -46,8 +46,10 @@ namespace couplerWriter
                 NDSName = aDRV["NetworkName"].ToString().Trim();                
                 EmailAddress = NDSName + "@warkscol.ac.uk";
                 StaffID = "Deleted";
-                Forename = "Deleted";
-                Surname = "Deleted";
+                //Forename = "Deleted";
+                //Surname = "Deleted";
+                Forename = NDSName;
+                Surname = "warwickshire.ac.uk";
                 SQLSurname = "Deleted";
                 Site = "Deleted";
                 DeptCode = "Deleted";
@@ -55,11 +57,13 @@ namespace couplerWriter
                 JobTitle = "Deleted";
                 EmpType = "Deleted";
                 Tel = "Deleted";
+                VisitingLec = "False";
                 if (!String.IsNullOrEmpty(aDRV["queueItem"].ToString())) queueItem = (int)aDRV["queueItem"];
                 if (!String.IsNullOrEmpty(aDRV["attempts"].ToString())) attempts = (int)aDRV["attempts"];
                 if (!String.IsNullOrEmpty(aDRV["action"].ToString())) action = aDRV["action"].ToString();
 
-                LocID = "Deleted";
+                //LocID = "Deleted";
+                LocID = "LEAMINGTON SPA";
 
                 GWise = false;
 
@@ -87,7 +91,8 @@ namespace couplerWriter
  
                 EmailAddress = NDSName + "@warkscol.ac.uk";
                 EmailAddressGoogle = NDSName + "@warwickshire.ac.uk";
-
+                VisitingLec = aDRV["VisitingLec"].ToString().Trim();
+                WCG_Ltd = aDRV["WCG_Ltd"].ToString().Trim();
                 QLId = aDRV["EmployeeNumber"].ToString().Trim();
                 EmpID = aDRV["EmployeeNumber"].ToString().Trim();
                 StaffID = QLId.Trim().PadLeft(8, '0');

@@ -25,7 +25,7 @@
   <Class Name="couplerWriter.defaultCoupler" Collapsed="true">
     <Position X="2.25" Y="4.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAICAAABAAAAAAAAAQCAACgAAAEAAAAUAQAAAAAAg=</HashCode>
+      <HashCode>AAAAACAAABAAAAAAAAAwCEACgAAAkAAAAAAQAAAAAAg=</HashCode>
       <FileName>defaultCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -210,28 +210,28 @@
       <FileName>jrbCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="couplerWriter.defaultCouplerCreateGoogleGroup" Collapsed="true">
+  <Class Name="couplerWriter.defaultCouplerDeleteGoogleGroup" Collapsed="true">
     <Position X="5" Y="6.25" Width="2.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
       <FileName>defaultCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="couplerWriter.defaultCouplerCreateGoogle" Collapsed="true">
+  <Class Name="couplerWriter.defaultCouplerUpdateGoogleAccount" Collapsed="true">
     <Position X="10.25" Y="6.25" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
       <FileName>defaultCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="couplerWriter.defaultCouplerCreateGoogleOU" Collapsed="true">
+  <Class Name="couplerWriter.defaultCouplerReInstateGoogleOrgUnit" Collapsed="true">
     <Position X="15.25" Y="6.25" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
       <FileName>defaultCoupler.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="couplerWriter.defaultCouplerRestoreGoogle" Collapsed="true">
+  <Class Name="couplerWriter.defaultCouplerRenameGoogleEmail" Collapsed="true">
     <Position X="18" Y="6.25" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
@@ -255,7 +255,7 @@
   <Class Name="couplerWriter.staffSpec" Collapsed="true">
     <Position X="2.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>SYAQDECAAkAAgABCAUEBAAAQFQAQACIQABBBCiAIIAA=</HashCode>
+      <HashCode>SYAQDECAAkAAgABCAUEBAAAQFQAQACIQCBBBCiAIIAA=</HashCode>
       <FileName>staffSpec.cs</FileName>
     </TypeIdentifier>
   </Class>

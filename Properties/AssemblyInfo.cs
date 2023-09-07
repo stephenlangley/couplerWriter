@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("couplerWriter")]
-[assembly: AssemblyDescription("Staff CouplerWriter")]
+[assembly: AssemblyDescription("Staff CouplerWriter: Jeep")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("WARWICKSHIRE COLLEGE")]
 [assembly: AssemblyProduct("couplerWriter")]
@@ -30,4 +30,4 @@ using System.Runtime.InteropServices;
 //      Revision
 //
 [assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.6")]
+[assembly: AssemblyFileVersion("1.0.0.7")]

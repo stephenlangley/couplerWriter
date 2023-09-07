@@ -19,30 +19,45 @@ namespace couplerWriter
             mTestedOK = new List<String>(); 
             mFailed = new List<String>();
             mSkipped = new List<String>();
-            mCouplerList.Add(new jrbCouplerCreate(aNDSTargetPath + "NewStaffLogins", "CreateNDS", 9));
-            mCouplerList.Add(new jrbCouplerUpdate(aNDSTargetPath + "UpdateStaffLogins", "UpdateNDS", 9));
-            mCouplerList.Add(new jrbCouplerChangeContact(aNDSTargetPath + "ChangeContactNDS", "ChangeContactNDS", 9));
-            mCouplerList.Add(new jrbCouplerProxy(aNDSTargetPath + "ProxyStaff", "ProxyNDS", 9999));
-            mCouplerList.Add(new jrbCouplerEnable(aNDSTargetPath + "EnableStaffLogins", "EnableNDS", 9));
-            mCouplerList.Add(new jrbCouplerDisable(aNDSTargetPath + "DisableStaffLogins", "DisableNDS", 9));
-            mCouplerList.Add(new jrbCouplerTrash(aNDSTargetPath + "TrashStaffLogins", "TrashNDS", 9));
-            mCouplerList.Add(new jrbCouplerDelete(aNDSTargetPath + "DeleteStaffLogins", "DeleteNDS", 9));
-            mCouplerList.Add(new jrbCouplerChangeSite(aNDSTargetPath + "ChangeSiteStaffLogins", "ChangeSiteNDS", 144));
-            mCouplerList.Add(new jrbCouplerClearNDSGroups(aNDSTargetPath + "ClearNDSGroups", "ClearNDSGroups", 144));
-            mCouplerList.Add(new jrbCouplerChangeLogin(aNDSTargetPath + "RenameLoginStaffLogins", "changeUserNetworkName", 288));
-            mCouplerList.Add(new defaultCouplerCreate(aEHDDB, aSHDDB, aQLRDB, "CreateDefault", 9));
-            mCouplerList.Add(new defaultCouplerEnable(aEHDDB, aSHDDB, aQLRDB, "EnableDefault", 9));
-            mCouplerList.Add(new defaultCouplerDelete(aEHDDB, aSHDDB, aQLRDB, "DeleteDefault", 9));
-            mCouplerList.Add(new defaultCouplerUpdateUserName(aEHDDB, aSHDDB, aQLRDB, "updateApplicationUserName", 9));
+            //mCouplerList.Add(new jrbCouplerCreate(aNDSTargetPath + "NewStaffLogins", "CreateNDS", 9));
+            //mCouplerList.Add(new jrbCouplerUpdate(aNDSTargetPath + "UpdateStaffLogins", "UpdateNDS", 9));
+            //mCouplerList.Add(new jrbCouplerChangeContact(aNDSTargetPath + "ChangeContactNDS", "ChangeContactNDS", 9));
+            //mCouplerList.Add(new jrbCouplerProxy(aNDSTargetPath + "ProxyStaff", "ProxyNDS", 9999));
+            //mCouplerList.Add(new jrbCouplerEnable(aNDSTargetPath + "EnableStaffLogins", "EnableNDS", 9));
+            //mCouplerList.Add(new jrbCouplerDisable(aNDSTargetPath + "DisableStaffLogins", "DisableNDS", 9));
+            //mCouplerList.Add(new jrbCouplerTrash(aNDSTargetPath + "TrashStaffLogins", "TrashNDS", 9));
+            //mCouplerList.Add(new jrbCouplerDelete(aNDSTargetPath + "DeleteStaffLogins", "DeleteNDS", 9));
+            //mCouplerList.Add(new jrbCouplerChangeSite(aNDSTargetPath + "ChangeSiteStaffLogins", "ChangeSiteNDS", 144));
+            //mCouplerList.Add(new jrbCouplerClearNDSGroups(aNDSTargetPath + "ClearNDSGroups", "ClearNDSGroups", 144));
+            //mCouplerList.Add(new jrbCouplerChangeLogin(aNDSTargetPath + "RenameLoginStaffLogins", "changeUserNetworkName", 288));
+            //mCouplerList.Add(new defaultCouplerCreate(aEHDDB, aSHDDB, aQLRDB, "CreateDefault", 9));
+            //mCouplerList.Add(new defaultCouplerEnable(aEHDDB, aSHDDB, aQLRDB, "EnableDefault", 9));
+            //mCouplerList.Add(new defaultCouplerDelete(aEHDDB, aSHDDB, aQLRDB, "DeleteDefault", 9));
+            //mCouplerList.Add(new defaultCouplerUpdateUserName(aEHDDB, aSHDDB, aQLRDB, "updateApplicationUserName", 9));
 
-            // Google Stuff below here
+            //Google Stuff below here -uncomment these when making EXE
             mCouplerList.Add(new defaultCouplerCreateGoogle(aEHDDB, aSHDDB, aQLRDB, "CreateGoogleLogins", 9));
-            mCouplerList.Add(new defaultCouplerCreateGoogleOU(aEHDDB, aSHDDB, aQLRDB, "CreateGoogleOU", 9));
             mCouplerList.Add(new defaultCouplerCreateGoogleGroup(aEHDDB, aSHDDB, aQLRDB, "GoogleGroupAdd", 9));
+            mCouplerList.Add(new defaultCouplerAddToGoogleGroup(aEHDDB, aSHDDB, aQLRDB, "AddToGoogleGroup", 9));
+            mCouplerList.Add(new defaultCouplerRemoveFromGoogleGroup(aEHDDB, aSHDDB, aQLRDB, "RemoveFromGoogleGroup", 9));
             mCouplerList.Add(new defaultCouplerSuspendGoogle(aEHDDB, aSHDDB, aQLRDB, "SuspendGoogle", 9));
             mCouplerList.Add(new defaultCouplerRestoreGoogle(aEHDDB, aSHDDB, aQLRDB, "RestoreGoogle", 9));
+            mCouplerList.Add(new defaultCouplerRestoreGooglePhoto(aEHDDB, aSHDDB, aQLRDB, "RestoreGooglePhoto", 9));
+            mCouplerList.Add(new defaultCouplerRemoveGoogleAlias(aEHDDB, aSHDDB, aQLRDB, "RemoveGoogleAlias", 9));
+            mCouplerList.Add(new defaultCouplerRenameGoogleEmail(aEHDDB, aSHDDB, aQLRDB, "RenameGoogleEmail", 9));
+            mCouplerList.Add(new defaultCouplerDeleteGoogleGroup(aEHDDB, aSHDDB, aQLRDB, "DeleteGoogleGroups", 9));
+            mCouplerList.Add(new defaultCouplerMoveGoogleOrgUnit(aEHDDB, aSHDDB, aQLRDB, "MoveGoogle", 9));
             mCouplerList.Add(new defaultCouplerDeleteGoogle(aEHDDB, aSHDDB, aQLRDB, "DeleteGoogle", 9));
-//=================================================================================================================================
+            mCouplerList.Add(new defaultCouplerReInstateGoogleOrgUnit(aEHDDB, aSHDDB, aQLRDB, "ReinstateGoogle", 9));
+
+            ////////mCouplerList.Add(new defaultCouplerUpdateGoogleAccount(aEHDDB, aSHDDB, aQLRDB, "UpdateGoogleAccount", 9));
+
+
+            // below used as one off for generic accounts moving to generics orgunit
+            //////mCouplerList.Add(new defaultCouplerRestoreGoogleOrgUnit(aEHDDB, aSHDDB, aQLRDB, "RestoreGoogleOrgUnit", 9));
+
+            //=================================================================================================================================
+            //mCouplerList.Add(new defaultCouplerCreateGoogleOU(aEHDDB, aSHDDB, aQLRDB, "CreateGoogleOU", 9));
             //// put on hold mCouplerList.Add(new jrbCouplerHomeDir(aNDSTargetPath + "HomeDirStaffLogins", "HomeDirNDS", 9));
             //// put on hold mCouplerList.Add(new jrbCouplerReSetHomeDir(aNDSTargetPath + "ReSetHomeDirStaffLogins", "ReSetHomeDirNDS", 9));
             ////mCouplerList.Add(new jrbCouplerChangeDetails(aNDSTargetPath + "ChangeDetailsStaffLogins", "ChangeDetailsNDS", 9));
